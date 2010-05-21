@@ -1,0 +1,2 @@
+Program("#seegoban", Glob("*.cpp"),
+        LIBS=['sfml-system', 'sfml-window', 'sfml-graphics'])
