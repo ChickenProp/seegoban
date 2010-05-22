@@ -9,7 +9,7 @@ public:
 	float y;
 
 	vec2f() : x(0.f), y(0.f) {}
-	vec2f(float _x, float _y) : x(_x), y(_y) {}
+	vec2f(const float _x, const float _y) : x(_x), y(_y) {}
 
 	float lengthSquared () const {
 		return x*x + y*y;
@@ -23,6 +23,24 @@ public:
 	}
 	float distance (const vec2f &v) const {
 		return (*this - v).length();
+	}
+
+	vec2f normalize () const {
+		if (lengthSquared() == 0)
+			return *this;
+		else
+			return *this / length();
+	}
+
+	float dot (const vec2f &v) const {
+		return x*v.x + y*v.y;
+	}
+
+	vec2f project(const vec2f &v) const {
+		return v.normalize() * (this->dot(v.normalize()));
+	}
+	vec2f project(const vec2f &u, const vec2f &v) const {
+		return u + (*this - u).project(v - u);
 	}
 
 	vec2f operator+ (const vec2f &v) const {

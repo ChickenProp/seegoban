@@ -61,4 +61,14 @@ void Grid::render(sf::RenderTarget &tgt) {
 
 		tgt.Draw(line);
 	}
+
+	GridPoint sidel(centre.project(corners[0], corners[1]));
+	GridPoint sider(centre.project(corners[3], corners[2]));
+	GridPoint sidet(centre.project(corners[0], corners[3]));
+	GridPoint sideb(centre.project(corners[2], corners[1]));
+
+	sidel.render(tgt);
+	sider.render(tgt);
+	sidet.render(tgt);
+	sideb.render(tgt);
 }
