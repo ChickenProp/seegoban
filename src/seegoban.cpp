@@ -1,8 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include "vector.h"
+#include "gridpoint.h"
 
-ph::vec2f corners[4];
-int current_corner = 0;
+#include <vector>
+
+std::vector<GridPoint> corners;
 
 void handleEvents(sf::RenderWindow &window);
 void handleEvent(sf::RenderWindow &window, sf::Event e);
@@ -27,12 +29,11 @@ int main(int argc, char **argv) {
 		handleEvents(window);
 		window.Draw(board_sprite);
 
-		for (int i = 0; i < current_corner; i++) {
-			circle.SetPosition(corners[i]); 
-			window.Draw(circle);
+		for (int i = 0; i < corners.size(); i++) {
+			corners[i].render(window);
 		}
 
-		if (current_corner >= 4) {
+		if (corners.size() >= 4) {
 			ph::vec2f u = (corners[1] - corners[0])/(boardsize-1);
 			ph::vec2f v = (corners[2] - corners[3])/(boardsize-1);
 			for (int i = 0; i < boardsize; i++) {
@@ -70,11 +71,9 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 	case sf::Event::Closed:
 		window.Close();
 	case sf::Event::MouseButtonPressed:
-		if (current_corner >= 4)
+		if (corners.size() >= 4)
 			break;
-		corners[current_corner] = ph::vec2f(e.MouseButton.X,
-		                                    e.MouseButton.Y);
-		current_corner++;
+		corners.push_back(GridPoint(e.MouseButton.X, e.MouseButton.Y));
 		break;
 	case sf::Event::KeyPressed:
 		switch (e.Key.Code) {
@@ -82,7 +81,6 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 			window.Close();
 			break;
 		case sf::Key::R:
-			current_corner = (current_corner == 0 ? 4 : 0);
 			break;
 		}
 		break;

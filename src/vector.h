@@ -60,7 +60,7 @@ public:
 
 };
 
-vec2f operator* (const float a, const vec2f &v) {
+inline vec2f operator* (const float a, const vec2f &v) {
 	return vec2f(a*v.x, a*v.y);
 }
 
