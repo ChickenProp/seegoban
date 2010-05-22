@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "vector.h"
 
-sf::Vector2f corners[4];
+ph::vec2f corners[4];
 int current_corner = 0;
 
 void handleEvents(sf::RenderWindow &window);
@@ -33,11 +33,11 @@ int main(int argc, char **argv) {
 		}
 
 		if (current_corner >= 4) {
-			sf::Vector2f u = (corners[1] - corners[0])/(boardsize-1.f);
-			sf::Vector2f v = (corners[2] - corners[3])/(boardsize-1.f);
+			ph::vec2f u = (corners[1] - corners[0])/(boardsize-1);
+			ph::vec2f v = (corners[2] - corners[3])/(boardsize-1);
 			for (int i = 0; i < boardsize; i++) {
-				line = sf::Shape::Line(corners[0] + (float)i*u,
-				                       corners[3] + (float)i*v,
+				line = sf::Shape::Line(corners[0] + i*u,
+				                       corners[3] + i*v,
 				                       1, sf::Color(255,0,0));
 
 				window.Draw(line);
@@ -72,8 +72,8 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 	case sf::Event::MouseButtonPressed:
 		if (current_corner >= 4)
 			break;
-		corners[current_corner] = sf::Vector2f(e.MouseButton.X,
-		                                       e.MouseButton.Y);
+		corners[current_corner] = ph::vec2f(e.MouseButton.X,
+		                                    e.MouseButton.Y);
 		current_corner++;
 		break;
 	case sf::Event::KeyPressed:
