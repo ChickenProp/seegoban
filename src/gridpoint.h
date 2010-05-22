@@ -10,6 +10,8 @@ public:
 
 	GridPoint(float x, float y)
 		: ph::vec2f(x,y), fixed(false) {}
+	GridPoint(ph::vec2f v)
+		: ph::vec2f(v), fixed(false) {}
 
 	void render(sf::RenderTarget &target);
 };
