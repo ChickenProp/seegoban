@@ -18,6 +18,7 @@ public:
 		centre(0,0) {}
 
 	void corner(float x, float y);
+	void moveNearest(float x, float y);
 	void render(sf::RenderTarget &target);
 };
 

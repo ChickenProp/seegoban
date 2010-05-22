@@ -11,6 +11,20 @@ public:
 	vec2f() : x(0.f), y(0.f) {}
 	vec2f(float _x, float _y) : x(_x), y(_y) {}
 
+	float lengthSquared () const {
+		return x*x + y*y;
+	}
+	float length () const {
+		return sqrt(x*x + y*y);
+	}
+
+	float distanceSquared (const vec2f &v) const {
+		return (*this - v).lengthSquared();
+	}
+	float distance (const vec2f &v) const {
+		return (*this - v).length();
+	}
+
 	vec2f operator+ (const vec2f &v) const {
 		return vec2f(x + v.x, y + v.y);
 	}

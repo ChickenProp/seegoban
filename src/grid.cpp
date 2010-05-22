@@ -12,6 +12,24 @@ void Grid::corner(float x, float y) {
 	}
 }
 
+void Grid::moveNearest(float x, float y) {
+	ph::vec2f v(x,y);
+
+	int nearest = -1;
+	for (int i = 1; i < corners.size(); i++) {
+		if (nearest < 0
+		    || v.distance(corners[i]) < v.distance(corners[nearest]))
+		{
+			nearest = i;
+		}
+	}
+
+	if (!defined || v.distance(centre) >= v.distance(corners[nearest]))
+		corners[nearest] = v;
+	else
+		centre = v;
+}
+
 void Grid::render(sf::RenderTarget &tgt) {
 	for (int i = 0; i < corners.size(); i++) {
 		corners[i].render(tgt);

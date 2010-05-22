@@ -46,7 +46,10 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 	case sf::Event::Closed:
 		window.Close();
 	case sf::Event::MouseButtonPressed:
-		board.corner(e.MouseButton.X, e.MouseButton.Y);
+		if (!board.defined)
+			board.corner(e.MouseButton.X, e.MouseButton.Y);
+		else
+			board.moveNearest(e.MouseButton.X, e.MouseButton.Y);
 		break;
 	case sf::Event::KeyPressed:
 		switch (e.Key.Code) {
