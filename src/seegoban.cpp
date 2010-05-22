@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include "vector.h"
 
 sf::Vector2f corners[4];
 int current_corner = 0;
