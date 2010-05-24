@@ -1,5 +1,8 @@
 #include "grid.h"
 
+int solveQuadratic(float a, float b, float c,
+                   float *x1 = NULL, float *x2 = NULL);
+
 void Grid::corner(float x, float y) {
 	if (defined) return;
 
@@ -90,7 +93,17 @@ void Grid::render(sf::RenderTarget &tgt) {
 	float b = p1.cross(p4) + p2.cross(p3);
 	float c = p2.cross(p4);
 
-	printf("%f\n", (-b - sqrt(b*b - 4*a*c))/(2*a));
+	float t, t1, t2;
+	solveQuadratic(a, b, c, &t1, &t2);
+
+	if (0 <= t1 && t1 <= 1)
+		t = t1;
+	else if (0 <= t2 && t2 <= 1)
+		t = t2;
+	else
+		t = 0.5;
+
+	printf("%f\n", t);
 }
 
 /* Find roots of a quadratic equation ax^2 + bx + c = 0. Returns the number of
@@ -102,8 +115,7 @@ void Grid::render(sf::RenderTarget &tgt) {
  * may be the same as the first.
 
  * If there are no roots, x1 and x2 are unchanged. */
-int solveQuadratic(float a, float b, float c,
-                   float *x1 = NULL, float *x2 = NULL)
+int solveQuadratic(float a, float b, float c, float *x1, float *x2)
 {
 	float disc = b*b - 4*a*c;
 	if (disc < 0) {
