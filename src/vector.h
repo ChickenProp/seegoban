@@ -35,6 +35,9 @@ public:
 	float dot (const vec2f &v) const {
 		return x*v.x + y*v.y;
 	}
+	float cross (const vec2f &v) const {
+		return x*v.y - y*v.x;
+	}
 
 	vec2f project(const vec2f &v) const {
 		return v.normalize() * (this->dot(v.normalize()));
