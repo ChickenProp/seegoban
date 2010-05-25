@@ -51,28 +51,6 @@ void Grid::render(sf::RenderTarget &tgt) {
 
 	centre.render(tgt);
 
-	sf::Shape line;
-
-	ph::vec2f u = (corners[1] - corners[0])/(size-1);
-	ph::vec2f v = (corners[2] - corners[3])/(size-1);
-	for (int i = 0; i < size; i++) {
-		line = sf::Shape::Line(corners[0] + i*u,
-		                       corners[3] + i*v,
-		                       1, sf::Color(255,0,0, 128));
-
-		tgt.Draw(line);
-	}
-
-	u = (corners[3] - corners[0])/(size-1.f);
-	v = (corners[2] - corners[1])/(size-1.f);
-	for (int i = 0; i < size; i++) {
-		line = sf::Shape::Line(corners[0] + (float)i*u,
-		                       corners[1] + (float)i*v,
-		                       1, sf::Color(255,0,0, 128));
-
-		tgt.Draw(line);
-	}
-
 	/* We want to calculate t in [0, 1], the value such that moving 1/t
 	 * along one side and 1/t along the opposite side gives two points which
 	 * are colinear with each other and the centre point of the board.
@@ -116,11 +94,60 @@ void Grid::render(sf::RenderTarget &tgt) {
 	else
 		t = 0.5;
 
+	/* t is for the left and right sides. Now we do the same to find s, the
+	 * equivalent point for the top and bottom sides. */
+
+	p1 = corners[3] - corners[0];
+	p2 = corners[0] - centre;
+	p3 = corners[2] - corners[1];
+	p4 = corners[1] - centre;
+
+	a = p1.cross(p3);
+	b = p1.cross(p4) + p2.cross(p3);
+	c = p2.cross(p4);
+
+	float s, s1, s2;
+	solveQuadratic(a, b, c, &s1, &s2);
+
+	if (0 <= s1 && s1 <= 1)
+		s = s1;
+	else if (0 <= s2 && s2 <= 1)
+		s = s2;
+	else
+		s = 0.5;
+
+
 	GridPoint sidel((1-t)*corners[0] + t*corners[1]);
 	GridPoint sider((1-t)*corners[3] + t*corners[2]);
+	GridPoint sidet((1-s)*corners[0] + s*corners[3]);
+	GridPoint sideb((1-s)*corners[1] + s*corners[2]);
 
 	sidel.render(tgt);
 	sider.render(tgt);
+	sidet.render(tgt);
+	sideb.render(tgt);
+
+	//vec2f r(s,t); /* The centre coordinate in gridspace. */
+
+	renderSemi(tgt, corners[0], sidel, corners[3], sider, (size+1)/2.0);
+	renderSemi(tgt, corners[1], sidel, corners[2], sider, (size+1)/2.0);
+	renderSemi(tgt, corners[0], sidet, corners[1], sideb, (size+1)/2.0);
+	renderSemi(tgt, corners[3], sidet, corners[2], sideb, (size+1)/2.0);
+}
+
+void Grid::renderSemi(sf::RenderTarget &tgt, ph::vec2f s11, ph::vec2f s12,
+                      ph::vec2f s21, ph::vec2f s22, float numlines)
+{
+	sf::Shape line;
+	ph::vec2f u = (s12 - s11)/(numlines - 1);
+	ph::vec2f v = (s22 - s21)/(numlines - 1);
+
+	for (int i = 0; i < numlines; i++) {
+		line = sf::Shape::Line(s11 + i*u, s21 + i*v,
+		                       1, sf::Color(255,0,0, 128));
+
+		tgt.Draw(line);
+	}
 }
 
 /* Find roots of a quadratic equation ax^2 + bx + c = 0. Returns the number of
