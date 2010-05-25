@@ -55,6 +55,9 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 			break;
 		case sf::Mouse::Right:
 			board.getStoneAtPoint(pt);
+			ph::vec2f in = board.grid.getIntersection(15, 3);
+			printf("%2.f/%.2f, %2.f/%.2f\n", pt.x, in.x, pt.y, in.y);
+
 			break;
 		}
 		break;
@@ -64,7 +67,8 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 		case sf::Key::Escape:
 			window.Close();
 			break;
-		case sf::Key::R:
+		case sf::Key::Return:
+			board.printSgf(stdout);
 			break;
 		}
 		break;

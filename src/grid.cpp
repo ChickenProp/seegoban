@@ -108,16 +108,20 @@ ph::vec2f Grid::getIntersection(int x, int y) {
 		origin = corners[1];
 		u = sideMidpoint(1) - origin;
 		v = sideMidpoint(0) - origin;
+		y = size - y - 1;
 	}
 	else if (x > size/2 && y <= size/2) {
 		origin = corners[3];
 		u = sideMidpoint(3) - origin;
+		x = size - x - 1;
 		v = sideMidpoint(2) - origin;
 	}
 	else { // x > size/2 && y > size/2
 		origin = corners[2];
 		u = sideMidpoint(1) - origin;
+		x = size - x - 1;
 		v = sideMidpoint(2) - origin;
+		y = size - y - 1;
 	}
 
 	return ph::vec2f(origin + x*u/(size/2) + y*v/(size/2));

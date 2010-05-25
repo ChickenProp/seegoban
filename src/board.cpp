@@ -6,9 +6,9 @@ float colorSaturation(sf::Color color);
 int max3 (int a, int b, int c);
 int min3 (int a, int b, int c);
 
-const Stone Stone::none(S_NONE);
-const Stone Stone::white(S_WHITE);
-const Stone Stone::black(S_BLACK);
+const Stone Stone::none('.');
+const Stone Stone::white('W');
+const Stone Stone::black('B');
 
 Board::Board() {}
 Board::Board(int size, const sf::Image &img)
@@ -40,7 +40,6 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 	else
 		c = (brt < 150 ? Stone::black : Stone::white);
 		
-	printf("%s (%f, %f)\n", (const char *)c, brt, sat);
 	return c;
 }
 
@@ -54,6 +53,36 @@ std::vector<sf::Color> Board::getSurroundingPixels(int x, int y, int size) {
 	}
 
 	return pixels;
+}
+
+void Board::printText (FILE *file) {
+	for (int i = 1; i <= grid.size; i++) {
+		for (int j = 1; j <= grid.size; j++) {
+			ph::vec2f pt = grid.getIntersection(j, i);
+			fprintf(file, "%c ", getStoneAtPoint(pt).color);
+		}
+		fprintf(file, "\n");
+	}
+}
+
+void Board::printSgf (FILE *file) {
+	// I don't really understand SGF, this is taken from perl's Image2SGF.
+	fprintf(file, "(;GM[1]FF[4]SZ[%d]\n", grid.size);
+	// PL[B] means it's black's turn to play, which is an okay default.
+	fprintf(file, "GN[seegoban conversion]\n\nAP[seegoban]\nPL[B]\n\n");
+
+	for (int i = 1; i <= grid.size; i++) {
+		for (int j = 1; j <= grid.size; j++) {
+			ph::vec2f pt = grid.getIntersection(j, i);
+			char c = getStoneAtPoint(pt).color;
+			if (c == '.') continue;
+
+			char x = '`' + j; // '`' is the character before 'a'
+			char y = '`' + i;
+			fprintf(file, "A%c[%c%c]\n", c, x, y);
+		}
+	}
+	fprintf(file, ")\n");
 }
 
 sf::Color colorAverage(std::vector<sf::Color> colors) {
