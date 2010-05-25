@@ -142,7 +142,7 @@ void Grid::renderSemi(sf::RenderTarget &tgt, ph::vec2f s11, ph::vec2f s12,
 	ph::vec2f u = (s12 - s11)/(numlines - 1);
 	ph::vec2f v = (s22 - s21)/(numlines - 1);
 
-	for (int i = 0; i < numlines; i++) {
+	for (int i = 0; i < (int) numlines; i++) {
 		line = sf::Shape::Line(s11 + i*u, s21 + i*v,
 		                       1, sf::Color(255,0,0, 128));
 
