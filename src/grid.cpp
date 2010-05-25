@@ -51,83 +51,13 @@ void Grid::render(sf::RenderTarget &tgt) {
 
 	centre.render(tgt);
 
-	/* We want to calculate t in [0, 1], the value such that moving 1/t
-	 * along one side and 1/t along the opposite side gives two points which
-	 * are colinear with each other and the centre point of the board.
-	 *
-	 * Points x, y, z are colinear if (x-y) and (z-y) are parallel, ie. if
-	 * (x-y) x (z-y) = 0. So letting the corners be c0 through c3 and the
-	 * centre be r, we need t such that
+	ph::vec2f v = transformToLocal(centre);
+	float s = v.x; float t = v.y;
 
-	 * (c0 + t(c1-c0) - r) x (c3 + t(c2-c3) - r) = 0
-
-	 * Make the following substitutions: */
-
-	ph::vec2f p1, p2, p3, p4;
-	p1 = corners[1] - corners[0];
-	p2 = corners[0] - centre;
-	p3 = corners[2] - corners[3];
-	p4 = corners[3] - centre;
-
-	/* Expanding the brackets, we now have:
-
-	 * t^2 (p1 x p3) + t(p1 x p4 + p2 x p3) + (p2 x p4) = 0
-
-	 * which is easy to solve for t. One solution is the value we desire;
-	 * the other will give us the point where the sides intersect. If the
-	 * sides are parallel, we get a=0 and must instead solve a linear
-	 * equation with only one solution (but solveQuadratic handles this
-	 * case, so it doesn't really matter). */
-
-	float a = p1.cross(p3);
-	float b = p1.cross(p4) + p2.cross(p3);
-	float c = p2.cross(p4);
-
-	float t, t1, t2;
-
-	solveQuadratic(a, b, c, &t1, &t2);
-
-	if (0 <= t1 && t1 <= 1)
-		t = t1;
-	else if (0 <= t2 && t2 <= 1)
-		t = t2;
-	else
-		t = 0.5;
-
-	/* t is for the left and right sides. Now we do the same to find s, the
-	 * equivalent point for the top and bottom sides. */
-
-	p1 = corners[3] - corners[0];
-	p2 = corners[0] - centre;
-	p3 = corners[2] - corners[1];
-	p4 = corners[1] - centre;
-
-	a = p1.cross(p3);
-	b = p1.cross(p4) + p2.cross(p3);
-	c = p2.cross(p4);
-
-	float s, s1, s2;
-	solveQuadratic(a, b, c, &s1, &s2);
-
-	if (0 <= s1 && s1 <= 1)
-		s = s1;
-	else if (0 <= s2 && s2 <= 1)
-		s = s2;
-	else
-		s = 0.5;
-
-
-	GridPoint sidel((1-t)*corners[0] + t*corners[1]);
-	GridPoint sider((1-t)*corners[3] + t*corners[2]);
-	GridPoint sidet((1-s)*corners[0] + s*corners[3]);
-	GridPoint sideb((1-s)*corners[1] + s*corners[2]);
-
-	sidel.render(tgt);
-	sider.render(tgt);
-	sidet.render(tgt);
-	sideb.render(tgt);
-
-	//vec2f r(s,t); /* The centre coordinate in gridspace. */
+	ph::vec2f sidel = sideMidpoint(0);
+	ph::vec2f sideb = sideMidpoint(1);
+	ph::vec2f sider = sideMidpoint(2);
+	ph::vec2f sidet = sideMidpoint(3);
 
 	renderSemi(tgt, corners[0], sidel, corners[3], sider, (size+1)/2.0);
 	renderSemi(tgt, corners[1], sidel, corners[2], sider, (size+1)/2.0);
@@ -148,6 +78,131 @@ void Grid::renderSemi(sf::RenderTarget &tgt, ph::vec2f s11, ph::vec2f s12,
 
 		tgt.Draw(line);
 	}
+}
+
+ph::vec2f Grid::sideMidpoint(int side) {
+	ph::vec2f c = transformToLocal(centre);
+
+	switch (side) {
+	case 0: return ph::vec2f( (1-c.y)*corners[0] + c.y*corners[1] );
+	case 1: return ph::vec2f( (1-c.x)*corners[1] + c.x*corners[2] );
+	case 2: return ph::vec2f( (1-c.y)*corners[3] + c.y*corners[2] );
+	case 3: return ph::vec2f( (1-c.x)*corners[0] + c.x*corners[3] );
+	default:
+		printf("Attempted to get midpoint of invalid side %d.\n", side);
+		return ph::vec2f(0,0);
+	}
+}
+
+ph::vec2f Grid::getIntersection(int x, int y) {
+	// Take coordinates 1-indexed, for consistency with Go numbering.
+	x -= 1; y -= 1;
+
+	ph::vec2f origin, u, v;
+	if (x <= size/2 && y <= size/2) {
+		origin = corners[0];
+		u = sideMidpoint(3) - origin;
+		v = sideMidpoint(0) - origin;
+	}
+	else if (x <= size/2 && y > size/2) {
+		origin = corners[1];
+		u = sideMidpoint(1) - origin;
+		v = sideMidpoint(0) - origin;
+	}
+	else if (x > size/2 && y <= size/2) {
+		origin = corners[3];
+		u = sideMidpoint(3) - origin;
+		v = sideMidpoint(2) - origin;
+	}
+	else { // x > size/2 && y > size/2
+		origin = corners[2];
+		u = sideMidpoint(1) - origin;
+		v = sideMidpoint(2) - origin;
+	}
+
+	return ph::vec2f(origin + x*u/(size/2) + y*v/(size/2));
+}
+
+
+ph::vec2f Grid::transformToLocal(const ph::vec2f &point) {
+	/* We want to calculate t in [0, 1], the value such that moving 1/t
+	 * along the left side and 1/t along the right side gives two points
+	 * which are colinear with each other and with the given point.
+	 *
+	 * Points x, y, z are colinear if (x-y) and (z-y) are parallel, ie. if
+	 * (x-y) x (z-y) = 0. So letting the corners be c0 through c3 and the
+	 * centre be r, we need t such that
+
+	 * (c0 + t(c1-c0) - r) x (c3 + t(c2-c3) - r) = 0
+
+	 * Make the following substitutions: */
+
+	ph::vec2f p1, p2, p3, p4;
+	p1 = corners[1] - corners[0];
+	p2 = corners[0] - point;
+	p3 = corners[2] - corners[3];
+	p4 = corners[3] - point;
+
+	/* Expanding the brackets, we now have:
+
+	 * t^2 (p1 x p3) + t(p1 x p4 + p2 x p3) + (p2 x p4) = 0
+
+	 * which is easy to solve for t. One solution is the value we desire;
+	 * the other will give us a value of t that puts us near where the sides
+	 * intersect. (Around that point the line drawn between the sides has to
+	 * make a complete rotation.) If the sides are parallel, we get a=0 and
+	 * must instead solve a linear equation with only one solution (but
+	 * solveQuadratic handles this case, so it doesn't really matter).
+
+	 * If it ever becomes necessary, we can distinguish the points by
+	 * finding out where the lines intersect. If that's at point r1 on one
+	 * side, and point r2 on the other, then the real value of t will have
+	 * r1-t and r2-t having the same polarity. The other value of t will
+	 * have r1-t and r2-t having different polarities. (Unless r1=t or r2=t,
+	 * in which case it's not obvious what to do.)
+
+	 * But it's not necessary yet, so for now I just assume the point is
+	 * inside the grid, and return 0.5 if it's not. */
+
+	float a = p1.cross(p3);
+	float b = p1.cross(p4) + p2.cross(p3);
+	float c = p2.cross(p4);
+
+	float t, t1, t2;
+
+	solveQuadratic(a, b, c, &t1, &t2);
+
+	if (0 <= t1 && t1 <= 1)
+		t = t1;
+	else if (0 <= t2 && t2 <= 1)
+		t = t2;
+	else
+		t = 0.5;
+
+	/* t is for the left and right sides. Now we do the same to find s, the
+	 * equivalent value for the top and bottom sides. */
+
+	p1 = corners[3] - corners[0];
+	p2 = corners[0] - point;
+	p3 = corners[2] - corners[1];
+	p4 = corners[1] - point;
+
+	a = p1.cross(p3);
+	b = p1.cross(p4) + p2.cross(p3);
+	c = p2.cross(p4);
+
+	float s, s1, s2;
+	solveQuadratic(a, b, c, &s1, &s2);
+
+	if (0 <= s1 && s1 <= 1)
+		s = s1;
+	else if (0 <= s2 && s2 <= 1)
+		s = s2;
+	else
+		s = 0.5;
+
+	return ph::vec2f(s, t);
+
 }
 
 /* Find roots of a quadratic equation ax^2 + bx + c = 0. Returns the number of
