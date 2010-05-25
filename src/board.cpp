@@ -6,6 +6,10 @@ float colorSaturation(sf::Color color);
 int max3 (int a, int b, int c);
 int min3 (int a, int b, int c);
 
+const Stone Stone::none(S_NONE);
+const Stone Stone::white(S_WHITE);
+const Stone Stone::black(S_BLACK);
+
 Board::Board() {}
 Board::Board(int size, const sf::Image &img)
 	: grid(size), image(img), sprite()
@@ -19,14 +23,25 @@ void Board::render (sf::RenderTarget &tgt) {
 	grid.render(tgt);
 }
 
-Stone::Color Board::getStoneAtPoint(ph::vec2f p) {
+Stone Board::getStoneAtPoint(ph::vec2f p) {
 	ph::vec2f l = sprite.TransformToLocal(p);
 	int x = (int) l.x;
 	int y = (int) l.y;
 
-	sf::Color color = colorAverage(getSurroundingPixels(x, y, 6));
-	printf("color near %d,%d is %d %d %d %d with %f/%f\n", x, y, color.r, color.g, color.b, color.a, colorBrightness(color), colorSaturation(color));
-	return Stone::none;
+	sf::Color avg = colorAverage(getSurroundingPixels(x, y, 6));
+	float brt = colorBrightness(avg);
+	float sat = colorSaturation(avg);
+//	printf("color near %d,%d is %d %d %d %d with %f/%f\n", x, y, color.r, color.g, color.b, color.a, colorBrightness(color), colorSaturation(color));
+
+	Stone c;
+
+	if (sat > 50)
+		c = Stone::none;
+	else
+		c = (brt < 150 ? Stone::black : Stone::white);
+		
+	printf("%s (%f, %f)\n", (const char *)c, brt, sat);
+	return c;
 }
 
 std::vector<sf::Color> Board::getSurroundingPixels(int x, int y, int size) {

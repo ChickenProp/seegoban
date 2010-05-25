@@ -6,7 +6,21 @@
 
 class Stone {
 public:
-	enum Color { none, white, black };
+	enum Color { S_NONE, S_WHITE, S_BLACK };
+
+	Stone() : color(S_NONE) {}
+	Stone(Color c) : color(c) {}
+
+	static const Stone none;
+	static const Stone white;
+	static const Stone black;
+	
+	Color color;
+
+	operator const char*() {
+		return (color == S_NONE ? "none" :
+		        color == S_WHITE ? "white" : "black");
+	}
 };
 
 class Board {
@@ -21,7 +35,7 @@ public:
 
 	void render(sf::RenderTarget &target);
 
-	Stone::Color getStoneAtPoint(ph::vec2f point);
+	Stone getStoneAtPoint(ph::vec2f point);
 	std::vector<sf::Color> getSurroundingPixels(int x, int y, int size);
 };
 
