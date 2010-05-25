@@ -4,6 +4,11 @@
 #include <SFML/Graphics.hpp>
 #include "grid.h"
 
+class Stone {
+public:
+	enum Color { none, white, black };
+};
+
 class Board {
 public:
 	Board();
@@ -15,6 +20,9 @@ public:
 	sf::Sprite sprite;
 
 	void render(sf::RenderTarget &target);
+
+	Stone::Color getStoneAtPoint(ph::vec2f point);
+	std::vector<sf::Color> getSurroundingPixels(int x, int y, int size);
 };
 
 #endif
