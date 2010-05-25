@@ -1,10 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include "vector.h"
-#include "grid.h"
+#include "board.h"
 
 #include <vector>
 
-Grid board(19);
+Board board;
 
 void handleEvents(sf::RenderWindow &window);
 void handleEvent(sf::RenderWindow &window, sf::Event e);
@@ -27,12 +27,11 @@ int main(int argc, char **argv) {
 	if (! board_image.LoadFromFile(filename))
 		return 1;
 
+	board = Board(19, board_image);
+
 	sf::Sprite board_sprite;
 	board_sprite.SetImage(board_image);
 	board_sprite.Resize(640, 480);
-
-	sf::Shape circle = sf::Shape::Circle(0, 0, 5, sf::Color(0, 0, 0, 0), 1, sf::Color(255, 0, 0));
-	sf::Shape line;
 
 	while (window.IsOpened()) {
 		handleEvents(window);
@@ -42,8 +41,6 @@ int main(int argc, char **argv) {
 			getStoneAtPoint(board_image,
 			                board_sprite.TransformToLocal(rtclick));
 		}
-
-		window.Draw(board_sprite);
 
 		board.render(window);
 
@@ -67,10 +64,10 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 
 		switch (e.MouseButton.Button) {
 		case sf::Mouse::Left:
-			if (!board.defined)
-				board.corner(pt);
+			if (!board.grid.defined)
+				board.grid.corner(pt);
 			else
-				board.moveNearest(pt);
+				board.grid.moveNearest(pt);
 			break;
 		case sf::Mouse::Right:
 			rightclicked = true;

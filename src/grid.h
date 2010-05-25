@@ -12,10 +12,9 @@ public:
 	GridPoint centre;
 	bool defined;
 
-	Grid(int sz)
-		: size(sz),
-		defined(false),
-		centre(0,0) {}
+	Grid() : size(-1), defined(false), centre(0,0) {}
+
+	Grid(int sz) : size(sz), defined(false), centre(0,0) {}
 
 	void corner(float x, float y);
 	void corner(ph::vec2f p);
