@@ -6,9 +6,15 @@ float colorSaturation(sf::Color color);
 int max3 (int a, int b, int c);
 int min3 (int a, int b, int c);
 
-const Stone Stone::none('.');
-const Stone Stone::white('W');
-const Stone Stone::black('B');
+Stone Stone::none(int x, int y, float b, float s) {
+	return Stone('.', x, y, b, s);
+}
+Stone Stone::white(int x, int y, float b, float s) {
+	return Stone('W', x, y, b, s);
+}
+Stone Stone::black(int x, int y, float b, float s) {
+	return Stone('B', x, y, b, s);
+}
 
 Board::Board() {}
 Board::Board(int size, const sf::Image &img)
@@ -36,9 +42,11 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 	Stone c;
 
 	if (sat > 50)
-		c = Stone::none;
+		c = Stone::none(x, y, brt, sat);
+	else if (brt < 150)
+		c = Stone::black(x, y, brt, sat);
 	else
-		c = (brt < 150 ? Stone::black : Stone::white);
+		c = Stone::white(x, y, brt, sat);
 		
 	return c;
 }
