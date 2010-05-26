@@ -1,0 +1,46 @@
+seegoban - take a photo of a Go board and write the position in SGF.
+
+Usage: seegoban <photo>
+
+To use, click on the corners of the board. A grid will appear overlaying the
+board, with the centre point marked. If necessary, you can adjust any of the
+corners or the centre by clicking near them. When satisfied, press enter to
+write the board position in SGF.
+
+Currently it's only been tested on one photo (included), and doesn't get perfect
+results even on that, but it will hopefully improve.
+
+Heuristics:
+
+To work out whether there is a stone at a given point, we take the average color
+of a 6x6 block surrounding it. If this color has saturation greater than 50, we
+assume there is no stone there. Otherwise the stone is assumed to be black if
+its brightness is less than 150, or white otherwise.
+
+Representing a color as (r,g,b), its saturation is max{r,g,b} - min{r,g,b} (as
+in HSV colorspace) and its brightness is .30*r + .59*g + .11*b (which according
+to wikipedia is fairly accurate in terms of how we perceive brightness).
+
+I intend to make these thresholds editable while seegoban is running.
+
+No scaling for perspective is done. Grid lines are evenly spaced up to the
+centre point, then evenly spaced after it. This turns out to be inadequate, so
+I'll add two-point perspective scaling at some point.
+
+Todo:
+
+* Webcam support
+* Proper GUI
+* Preview of results
+* Edit board in cgoban (or sgf editor of choice)
+
+License:
+
+seegoban is copyright 2010 Philip Hazelden <philh.net>. You can do what you like
+with it. If we meet some day, and you think this stuff is worth it, you can buy
+me a beer in return.
+
+board.png is licensed under the Creative Commons Attribution-ShareAlike 3.0
+License. I got it from
+http://en.wikipedia.org/wiki/File:Go-Equipment-Narrow-Black.png
+as of May 2010.
