@@ -2,7 +2,7 @@
 #include "vector.h"
 #include "board.h"
 #include "unistd.h"
-
+#include <cstring>
 #include <vector>
 
 Board board;
@@ -13,10 +13,10 @@ void handleEvent(sf::RenderWindow &window, sf::Event e);
 int main(int argc, char **argv) {
 	bool opt_auto = false;
 	char opt_output = 's';
-	char *opt_corners = NULL;
-	char *opt_centre = NULL;
+	int num_corners = 0;
+	int corners[2][5];
 	int c;
-	while ((c = getopt(argc, argv, "tsdac:r:")) != -1) {
+	while ((c = getopt(argc, argv, "tsdac:")) != -1) {
 		switch (c) {
 		case 'a':
 			opt_auto = true;
@@ -27,10 +27,10 @@ int main(int argc, char **argv) {
 			opt_output = c;
 			break;
 		case 'c':
-			opt_corners = optarg;
-			break;
-		case 'r':
-			opt_centre = optarg;
+			corners[num_corners][0] = atoi(optarg);
+			char *second = strchr(optarg, ',');
+			corners[num_corners][1] = atoi(second+1);
+			num_corners++;
 			break;
 		}
 	}
@@ -40,6 +40,9 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+	for (int i = 0; i < num_corners; i++)
+		printf("corner %d,%d\n", corners[i][0], corners[i][1]);
+
 	char *filename = argv[optind];
 
 	sf::RenderWindow window(sf::VideoMode(640, 480, 32), "seegoban");
@@ -48,10 +51,6 @@ int main(int argc, char **argv) {
 		return 1;
 
 	board = Board(19, board_image);
-
-	sf::Sprite board_sprite;
-	board_sprite.SetImage(board_image);
-	board_sprite.Resize(640, 480);
 
 	while (window.IsOpened()) {
 		handleEvents(window);
