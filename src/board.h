@@ -28,8 +28,8 @@ public:
 
 	Grid grid;
 	sf::Image image;
-
 	sf::Sprite sprite;
+	sf::View view;
 
 	void render(sf::RenderTarget &target);
 

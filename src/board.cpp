@@ -18,10 +18,13 @@ Stone Stone::black(int x, int y, float b, float s) {
 
 Board::Board() {}
 Board::Board(int size, const sf::Image &img)
-	: grid(size), image(img), sprite()
+	: grid(size), image(img), sprite(), view()
 {
+	float w = image.GetWidth()/2;
+	float h = image.GetHeight()/2;
+	view.SetCenter(w, h);
+	view.SetHalfSize(w, h);
 	sprite.SetImage(img); // 'image' here doesn't seem to work?
-	sprite.Resize(640, 480);
 }
 
 void Board::render (sf::RenderTarget &tgt) {

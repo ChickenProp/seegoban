@@ -13,8 +13,9 @@ void handleEvent(sf::RenderWindow &window, sf::Event e);
 int main(int argc, char **argv) {
 	bool opt_auto = false;
 	char opt_output = 's';
-	int num_corners = 0;
-	int corners[2][5];
+	const int max_coords = 5;
+	int num_coords = 0;
+	float coords[2][max_coords];
 	int c;
 	while ((c = getopt(argc, argv, "tsdac:")) != -1) {
 		switch (c) {
@@ -27,10 +28,10 @@ int main(int argc, char **argv) {
 			opt_output = c;
 			break;
 		case 'c':
-			corners[num_corners][0] = atoi(optarg);
+			coords[num_coords][0] = atof(optarg);
 			char *second = strchr(optarg, ',');
-			corners[num_corners][1] = atoi(second+1);
-			num_corners++;
+			coords[num_coords][1] = atoi(second+1);
+			num_coords++;
 			break;
 		}
 	}
@@ -40,8 +41,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	for (int i = 0; i < num_corners; i++)
-		printf("corner %d,%d\n", corners[i][0], corners[i][1]);
+	for (int i = 0; i < num_coords; i++)
+		printf("corner %f,%f\n", coords[i][0], coords[i][1]);
 
 	char *filename = argv[optind];
 
@@ -51,6 +52,8 @@ int main(int argc, char **argv) {
 		return 1;
 
 	board = Board(19, board_image);
+
+	window.SetView(board.view);
 
 	while (window.IsOpened()) {
 		handleEvents(window);
@@ -73,7 +76,8 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 	case sf::Event::Closed:
 		window.Close();
 	case sf::Event::MouseButtonPressed: {
-		ph::vec2f pt(e.MouseButton.X, e.MouseButton.Y);
+		ph::vec2f pt(window.ConvertCoords(e.MouseButton.X,
+		                                  e.MouseButton.Y));
 
 		switch (e.MouseButton.Button) {
 		case sf::Mouse::Left:
