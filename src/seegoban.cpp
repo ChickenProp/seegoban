@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "vector.h"
 #include "board.h"
+#include "unistd.h"
 
 #include <vector>
 
@@ -10,7 +11,36 @@ void handleEvents(sf::RenderWindow &window);
 void handleEvent(sf::RenderWindow &window, sf::Event e);
 
 int main(int argc, char **argv) {
-	char *filename = argv[1];
+	bool opt_auto = false;
+	char opt_output = 's';
+	char *opt_corners = NULL;
+	char *opt_centre = NULL;
+	int c;
+	while ((c = getopt(argc, argv, "tsdac:r:")) != -1) {
+		switch (c) {
+		case 'a':
+			opt_auto = true;
+			break;
+		case 't': 
+		case 's': 
+		case 'd': 
+			opt_output = c;
+			break;
+		case 'c':
+			opt_corners = optarg;
+			break;
+		case 'r':
+			opt_centre = optarg;
+			break;
+		}
+	}
+
+	if (optind >= argc) {
+		fprintf(stderr, "Must supply a board image.\n");
+		exit(1);
+	}
+
+	char *filename = argv[optind];
 
 	sf::RenderWindow window(sf::VideoMode(640, 480, 32), "seegoban");
 	sf::Image board_image;
