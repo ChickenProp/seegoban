@@ -82,15 +82,17 @@ void Board::printSgf (FILE *file) {
 	for (int i = 1; i <= grid.size; i++) {
 		for (int j = 1; j <= grid.size; j++) {
 			ph::vec2f pt = grid.getIntersection(j, i);
-			char c = getStoneAtPoint(pt).color;
+			Stone s = getStoneAtPoint(pt);
+			char c = s.color;
 			if (c == '.') continue;
 
 			char x = '`' + j; // '`' is the character before 'a'
 			char y = '`' + i;
-			fprintf(file, "A%c[%c%c]\n", c, x, y);
+			fprintf(file, "A%c[%c%c]C[%d,%d]\n", c, x, y, s.x, s.y);
 		}
 	}
 	fprintf(file, ")\n");
+	fflush(file);
 }
 
 sf::Color colorAverage(std::vector<sf::Color> colors) {
