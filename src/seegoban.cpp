@@ -53,6 +53,9 @@ int main(int argc, char **argv) {
 
 	board = Board(19, board_image);
 
+	for (int i = 0; i < num_coords; i++)
+		board.grid.corner(coords[i][0], coords[i][1]);
+
 	window.SetView(board.view);
 
 	while (window.IsOpened()) {
