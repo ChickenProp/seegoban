@@ -56,6 +56,18 @@ std::vector<sf::Color> Board::getSurroundingPixels(int x, int y, int size) {
 	return pixels;
 }
 
+void Board::openInCgoban () {
+	FILE *stream = popen("cgoban -edit /dev/stdin", "w");
+	if (stream == NULL) {
+		fprintf(stderr, "Could not open cgoban for some reason.\n");
+		return;
+	}
+	else {
+		printSgf(stream);
+		pclose(stream);
+	}
+}
+
 void Board::printText (FILE *file) {
 	for (int i = 1; i <= grid.size; i++) {
 		for (int j = 1; j <= grid.size; j++) {

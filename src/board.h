@@ -21,6 +21,7 @@ public:
 	Stone getStoneAtPoint(ph::vec2f point);
 	std::vector<sf::Color> getSurroundingPixels(int x, int y, int size);
 
+	void openInCgoban();
 	void printSgf (FILE *file);
 	void printText (FILE *file);
 };

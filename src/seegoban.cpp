@@ -105,6 +105,9 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 		case sf::Key::Return:
 			board.printSgf(stdout);
 			break;
+		case sf::Key::C:
+			board.openInCgoban();
+			break;
 		}
 		break;
 	}
