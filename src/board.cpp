@@ -6,16 +6,6 @@ float colorSaturation(sf::Color color);
 int max3 (int a, int b, int c);
 int min3 (int a, int b, int c);
 
-Stone Stone::none(int x, int y, float b, float s) {
-	return Stone('.', x, y, b, s);
-}
-Stone Stone::white(int x, int y, float b, float s) {
-	return Stone('W', x, y, b, s);
-}
-Stone Stone::black(int x, int y, float b, float s) {
-	return Stone('B', x, y, b, s);
-}
-
 Board::Board() {}
 Board::Board(int size, const sf::Image &img)
 	: grid(size), image(img), sprite(), view()
