@@ -68,10 +68,10 @@ int main(int argc, char **argv) {
 }
 
 void handleEvents(sf::RenderWindow &window) {
-		sf::Event e;
-		while (window.GetEvent(e)) {
-			handleEvent(window, e);
-		}
+	sf::Event e;
+	while (window.GetEvent(e)) {
+		handleEvent(window, e);
+	}
 }
 
 void handleEvent(sf::RenderWindow &window, sf::Event e) {
