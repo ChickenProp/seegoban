@@ -24,6 +24,7 @@ public:
 	void openInCgoban();
 	void printSgf (FILE *file);
 	void printText (FILE *file);
+	void printDebug (FILE *file);
 };
 
 #endif

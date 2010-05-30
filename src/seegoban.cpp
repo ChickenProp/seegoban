@@ -103,7 +103,13 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 			window.Close();
 			break;
 		case sf::Key::Return:
+			board.printText(stdout);
+			break;
+		case sf::Key::S:
 			board.printSgf(stdout);
+			break;
+		case sf::Key::D:
+			board.printDebug(stdout);
 			break;
 		case sf::Key::C:
 			board.openInCgoban();

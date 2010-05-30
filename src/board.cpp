@@ -100,6 +100,18 @@ void Board::printSgf (FILE *file) {
 	fflush(file);
 }
 
+void Board::printDebug (FILE *file) {
+	for (int i = 1; i <= grid.size; i++) {
+		for (int j = 1; j <= grid.size; j++) {
+			ph::vec2f pt = grid.getIntersection(j, i);
+			Stone s = getStoneAtPoint(pt);
+
+			fprintf(file, "%d\t%d\t%c\t%d\t%d\t%f\t%f\n", j, i,
+			        s.color, s.x, s.y, s.brightness, s.saturation);
+		}
+	}
+}
+
 sf::Color colorAverage(std::vector<sf::Color> colors) {
 	int count = colors.size();
 	int r, g, b, a; // sf::Color would overflow
