@@ -114,6 +114,9 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 		case sf::Key::C:
 			board.openInCgoban();
 			break;
+		case sf::Key::E:
+			board.printExpected(stdin, stdout);
+			break;
 		}
 		break;
 	}

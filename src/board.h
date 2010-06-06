@@ -25,6 +25,7 @@ public:
 	void printSgf (FILE *file);
 	void printText (FILE *file);
 	void printDebug (FILE *file);
+	void printExpected (FILE *in, FILE *out);
 };
 
 #endif

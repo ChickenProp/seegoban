@@ -112,6 +112,30 @@ void Board::printDebug (FILE *file) {
 	}
 }
 
+void Board::printExpected (FILE *in, FILE *out) {
+	for (int i = 1; i <= grid.size; i++) {
+		for (int j = 1; j <= grid.size; j++) {
+			ph::vec2f pt = grid.getIntersection(j, i);
+			Stone s = getStoneAtPoint(pt);
+			int c;
+			do {
+				c = getc(in);
+			} while (isspace(c));
+			if (c == EOF)
+				return;
+
+			c = toupper(c);
+
+			if (s.color == c)
+				continue;
+
+			fprintf(out, "%d,%d: expected %c, found %c (x: %d, y %d, brt: %f, sat: %f\n",
+			        j, i, (char) c, s.color, s.x, s.y,
+			        s.brightness, s.saturation);
+		}
+	}
+}
+
 sf::Color colorAverage(std::vector<sf::Color> colors) {
 	int count = colors.size();
 	int r, g, b, a; // sf::Color would overflow
