@@ -38,9 +38,9 @@ to wikipedia is fairly accurate in terms of how we perceive brightness).
 I intend to make these thresholds editable while seegoban is running, and to
 have more intelligent boundaries. My current plan, given a point of brightness B
 and saturation S is: if w*B - x*S > m, there is a white stone there; if y*B +
-z*S < n, there is a black stone there; otherwise, there is no stone
-there. Suitable values for w, x, y, z, m, n are as-yet unknown, but I'm working
-on being able to collect that data.
+z*S < n, there is a black stone there; otherwise, there is no stone there.
+Suitable values for w, x, y, z, m, n are as-yet unknown, but I'm working on
+being able to collect that data.
 
 No scaling for perspective is done. Grid lines are evenly spaced up to the
 centre point, then evenly spaced after it. This turns out to be inadequate, so
