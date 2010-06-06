@@ -54,6 +54,11 @@ Todo:
 * Preview of results
 * Select an SGF editor other than cgoban
 
+Bugs:
+
+* The grid is scaled along with the board, which can cause lines not to show up
+  very well.
+
 License:
 
 seegoban is copyright 2010 Philip Hazelden <philh.net>. You can do what you like
