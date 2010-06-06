@@ -6,18 +6,20 @@
 #include <vector>
 
 Board board;
+FILE *expect_in = NULL;
 
 void handleEvents(sf::RenderWindow &window);
 void handleEvent(sf::RenderWindow &window, sf::Event e);
 
 int main(int argc, char **argv) {
 	bool opt_auto = false;
+	bool opt_expect = false;
 	char opt_output = 's';
 	const int max_coords = 5;
 	int num_coords = 0;
 	float coords[2][max_coords];
 	int c;
-	while ((c = getopt(argc, argv, "tsdac:")) != -1) {
+	while ((c = getopt(argc, argv, "tsdac:e:")) != -1) {
 		switch (c) {
 		case 'a':
 			opt_auto = true;
@@ -27,11 +29,19 @@ int main(int argc, char **argv) {
 		case 'd': 
 			opt_output = c;
 			break;
-		case 'c':
+		case 'c': {
 			coords[num_coords][0] = atof(optarg);
 			char *second = strchr(optarg, ',');
 			coords[num_coords][1] = atoi(second+1);
 			num_coords++;
+			break;
+		}
+		case 'e':
+			opt_expect = true;
+			if (strcmp(optarg, "-") == 0)
+				expect_in = stdin;
+			else
+				expect_in = fopen(optarg, "r");
 			break;
 		}
 	}
@@ -115,7 +125,7 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 			board.openInCgoban();
 			break;
 		case sf::Key::E:
-			board.printExpected(stdin, stdout);
+			board.printExpected(expect_in, stdout);
 			break;
 		}
 		break;

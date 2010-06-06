@@ -113,6 +113,7 @@ void Board::printDebug (FILE *file) {
 }
 
 void Board::printExpected (FILE *in, FILE *out) {
+	rewind(in);
 	for (int i = 1; i <= grid.size; i++) {
 		for (int j = 1; j <= grid.size; j++) {
 			ph::vec2f pt = grid.getIntersection(j, i);
