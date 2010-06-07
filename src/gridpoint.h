@@ -2,7 +2,7 @@
 #define SGB_GRIDPOINT_H
 
 #include <SFML/Graphics.hpp>
-#include "vector.h"
+#include "ph-utils/vector.h"
 
 class GridPoint : public ph::vec2f {
 public:
