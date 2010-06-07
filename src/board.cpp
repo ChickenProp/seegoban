@@ -1,10 +1,9 @@
 #include "board.h"
+#include "ph-utils/math-util.h"
 
 sf::Color colorAverage(std::vector<sf::Color> colors);
 float colorBrightness(sf::Color color);
 float colorSaturation(sf::Color color);
-int max3 (int a, int b, int c);
-int min3 (int a, int b, int c);
 
 Board::Board() {}
 Board::Board(int size, const sf::Image &img)
@@ -156,19 +155,5 @@ float colorBrightness(sf::Color c) {
 }
 
 float colorSaturation(sf::Color c) {
-	return max3(c.r, c.g, c.b) - min3(c.r, c.g, c.b);
-}
-
-int max3 (int a, int b, int c) {
-	if (a > b)
-		return a > c ? a : c;
-	else
-		return b > c ? b : c;
-}
-
-int min3 (int a, int b, int c) {
-	if (a < b)
-		return a < c ? a : c;
-	else
-		return b < c ? b : c;
+	return ph::max3(c.r, c.g, c.b) - ph::min3(c.r, c.g, c.b);
 }
