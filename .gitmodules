@@ -1,0 +1,3 @@
+[submodule "src/ph-utils"]
+	path = src/ph-utils
+	url = git://github.com/ChickenProp/ph-utils.git
