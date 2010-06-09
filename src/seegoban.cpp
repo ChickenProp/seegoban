@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 		case 'e':
+			opt_output = 'e';
 			opt_expect = true;
 			if (strcmp(optarg, "-") == 0)
 				expect_in = stdin;
@@ -51,9 +52,6 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	for (int i = 0; i < num_coords; i++)
-		printf("corner %f,%f\n", coords[i][0], coords[i][1]);
-
 	char *filename = argv[optind];
 
 	sf::RenderWindow window(sf::VideoMode(640, 480, 32), "seegoban");
@@ -65,6 +63,15 @@ int main(int argc, char **argv) {
 
 	for (int i = 0; i < num_coords; i++)
 		board.grid.corner(coords[i][0], coords[i][1]);
+
+	if (opt_auto) {
+		if (!board.grid.defined) {
+			fprintf(stderr, "All four corners must be defined.\n");
+			exit(1);
+		}
+
+		exit(0);
+	}
 
 	window.SetView(board.view);
 
