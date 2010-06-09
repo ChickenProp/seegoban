@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 	char opt_output = 's';
 	const int max_coords = 5;
 	int num_coords = 0;
-	float coords[2][max_coords];
+	float coords[max_coords][2];
 	int c;
 	while ((c = getopt(argc, argv, "tsdac:e:")) != -1) {
 		switch (c) {
