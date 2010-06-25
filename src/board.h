@@ -9,7 +9,7 @@
 class Board {
 public:
 	Board();
-	Board(int size, const sf::Image &img);
+	Board(int size, const sf::Image &img, FILE *expect = NULL);
 
 	Grid grid;
 	sf::Image image;
@@ -18,6 +18,8 @@ public:
 
 	void render(sf::RenderTarget &target);
 
+	std::vector< std::vector<Stone> > expectedStones;
+
 	Stone getStoneAtPoint(ph::vec2f point);
 	std::vector<sf::Color> getSurroundingPixels(int x, int y, int size);
 
@@ -25,7 +27,9 @@ public:
 	void printSgf (FILE *file);
 	void printText (FILE *file);
 	void printDebug (FILE *file);
-	void printExpected (FILE *in, FILE *out);
+	void printExpected (FILE *out);
+
+	std::vector< std::vector<Stone> > readExpected(FILE *in);
 };
 
 #endif

@@ -6,7 +6,6 @@
 #include <vector>
 
 Board board;
-FILE *expect_in = NULL;
 
 void handleEvents(sf::RenderWindow &window);
 void handleEvent(sf::RenderWindow &window, sf::Event e);
@@ -14,6 +13,7 @@ void handleEvent(sf::RenderWindow &window, sf::Event e);
 int main(int argc, char **argv) {
 	bool opt_auto = false;
 	bool opt_expect = false;
+	FILE *expect_file = NULL;
 	char opt_output = 's';
 	const int max_coords = 5;
 	int num_coords = 0;
@@ -40,9 +40,9 @@ int main(int argc, char **argv) {
 			opt_output = 'e';
 			opt_expect = true;
 			if (strcmp(optarg, "-") == 0)
-				expect_in = stdin;
+				expect_file = stdin;
 			else
-				expect_in = fopen(optarg, "r");
+				expect_file = fopen(optarg, "r");
 			break;
 		}
 	}
@@ -59,7 +59,10 @@ int main(int argc, char **argv) {
 	if (! board_image.LoadFromFile(filename))
 		return 1;
 
-	board = Board(19, board_image);
+	if (!opt_expect) 
+		board = Board(19, board_image);
+	else
+		board = Board(19, board_image, expect_file);
 
 	for (int i = 0; i < num_coords; i++)
 		board.grid.corner(coords[i][0], coords[i][1]);
@@ -132,7 +135,7 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 			board.openInCgoban();
 			break;
 		case sf::Key::E:
-			board.printExpected(expect_in, stdout);
+			board.printExpected(stdout);
 			break;
 		}
 		break;

@@ -6,14 +6,17 @@ float colorBrightness(sf::Color color);
 float colorSaturation(sf::Color color);
 
 Board::Board() {}
-Board::Board(int size, const sf::Image &img)
-	: grid(size), image(img), sprite(), view()
+Board::Board(int size, const sf::Image &img, FILE *expect)
+	: grid(size), image(img), sprite(), view(), expectedStones()
 {
 	float w = image.GetWidth()/2;
 	float h = image.GetHeight()/2;
 	view.SetCenter(w, h);
 	view.SetHalfSize(w, h);
 	sprite.SetImage(img); // 'image' here doesn't seem to work?
+
+	if (expect)
+		expectedStones = readExpected(expect);
 }
 
 void Board::render (sf::RenderTarget &tgt) {
@@ -111,29 +114,43 @@ void Board::printDebug (FILE *file) {
 	}
 }
 
-void Board::printExpected (FILE *in, FILE *out) {
-	rewind(in);
+void Board::printExpected (FILE *out) {
 	for (int i = 1; i <= grid.size; i++) {
 		for (int j = 1; j <= grid.size; j++) {
 			ph::vec2f pt = grid.getIntersection(j, i);
 			Stone s = getStoneAtPoint(pt);
+			char c = expectedStones[i-1][j-1].color;
+
+			if (s.color == c)
+				continue;
+
+			fprintf(out, "%d,%d: expected %c, found %c (x: %d, y %d, brt: %f, sat: %f)\n",
+			        j, i, c, s.color, s.x, s.y,
+			        s.brightness, s.saturation);
+		}
+	}
+}
+
+std::vector< std::vector<Stone> > Board::readExpected(FILE *in) {
+	std::vector< std::vector<Stone> > arr;
+	for (int i = 0; i < grid.size; i++) {
+		arr.push_back(std::vector<Stone>());
+
+		for (int j = 0; j < grid.size; j++) {
+			Stone s;
 			int c;
 			do {
 				c = getc(in);
 			} while (isspace(c));
 			if (c == EOF)
-				return;
+				return arr;
 
-			c = toupper(c);
-
-			if (s.color == c)
-				continue;
-
-			fprintf(out, "%d,%d: expected %c, found %c (x: %d, y %d, brt: %f, sat: %f\n",
-			        j, i, (char) c, s.color, s.x, s.y,
-			        s.brightness, s.saturation);
+			s.color = toupper(c);
+			arr[i].push_back(s);
 		}
 	}
+
+	return arr;
 }
 
 sf::Color colorAverage(std::vector<sf::Color> colors) {
