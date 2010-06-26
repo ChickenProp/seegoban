@@ -93,7 +93,19 @@ void Board::openInCgoban () {
 	}
 }
 
+// pclose() returns when xgraph exits, so we need to fork or seegoban hangs
+// until xgraph is closed. (We don't need to do this for cgoban because it forks
+// all by itself.)
 void Board::viewGraph () {
+	pid_t pid = fork();
+
+	if (pid > 0)
+		return;
+	else if (pid == -1) {
+		fprintf(stderr, "There was an error forking in viewGraph().\n");
+		return;
+	}
+
 	FILE *stream = popen("xgraph -nl -P", "w");
 	if (stream == NULL) {
 		fprintf(stderr, "Could not open xgraph for some reason.\n");
@@ -103,6 +115,8 @@ void Board::viewGraph () {
 		printXGraph(stream);
 		pclose(stream);
 	}
+
+	exit(0);
 }
 
 void Board::printText (FILE *file) {
