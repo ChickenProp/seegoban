@@ -26,9 +26,11 @@ public:
 	std::vector<sf::Color> getSurroundingPixels(int x, int y, int size);
 
 	void openInCgoban();
+	void viewGraph();
 	void printSgf (FILE *file);
 	void printText (FILE *file);
 	void printDebug (FILE *file);
+	void printXGraph (FILE *file);
 	void printExpected (FILE *file);
 
 	std::vector< std::vector<Stone> > readExpected(FILE *in);

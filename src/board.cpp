@@ -93,6 +93,18 @@ void Board::openInCgoban () {
 	}
 }
 
+void Board::viewGraph () {
+	FILE *stream = popen("xgraph -nl -P", "w");
+	if (stream == NULL) {
+		fprintf(stderr, "Could not open xgraph for some reason.\n");
+		return;
+	}
+	else {
+		printXGraph(stream);
+		pclose(stream);
+	}
+}
+
 void Board::printText (FILE *file) {
 	for (int i = 1; i <= grid.size; i++) {
 		for (int j = 1; j <= grid.size; j++) {
@@ -148,6 +160,46 @@ void Board::printDebug (FILE *file) {
 		for (int j = 1; j <= grid.size; j++)
 			printStoneDebug(j, i, file);
 }
+
+void printXGraphSet (std::vector<Stone> stones, const char *name, FILE *file) {
+	fprintf(file, "\"%s\"\n", name);
+
+	for (int i = 0; i < stones.size(); i++)
+		fprintf(file, "%f %f\n",
+		        stones[i].brightness, stones[i].saturation);
+
+	fprintf(file, "\n");
+}
+
+void Board::printXGraph (FILE *file) {
+	std::vector<Stone> black;
+	std::vector<Stone> white;
+	std::vector<Stone> none;
+	std::vector<Stone> all;
+
+	for (int y = 1; y <= grid.size; y++) {
+		for (int x = 1; x <= grid.size; x++) {
+			Stone s = getStoneAtIntersection(x, y);
+			Stone e;
+			if (hasExpect)
+				e = expectedStone(x, y);
+
+			(!hasExpect ? all
+			 : e.color == 'B' ? black
+			 : e.color == 'W' ? white
+			 : none).push_back(s);
+		}
+	}
+
+	if (hasExpect) {
+		printXGraphSet(none, "None", file);
+		printXGraphSet(black, "Black", file);
+		printXGraphSet(white, "White", file);
+	}
+	else
+		printXGraphSet(all, "Stones", file);
+}
+
 
 void Board::printStoneExpected (int x, int y, FILE *file) {
 	Stone s = getStoneAtIntersection(x, y);

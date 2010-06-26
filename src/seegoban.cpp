@@ -137,6 +137,12 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 		case sf::Key::E:
 			board.printExpected(stdout);
 			break;
+		case sf::Key::G:
+			board.printXGraph(stdout);
+			break;
+		case sf::Key::V:
+			board.viewGraph();
+			break;
 		}
 		break;
 	}
