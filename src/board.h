@@ -19,18 +19,25 @@ public:
 	void render(sf::RenderTarget &target);
 
 	bool hasExpect;
-	std::vector< std::vector<Stone> > expectedStones;
+	Stone expectedStone(int x, int y);
 
 	Stone getStoneAtPoint(ph::vec2f point);
+	Stone getStoneAtIntersection(int x, int y);
 	std::vector<sf::Color> getSurroundingPixels(int x, int y, int size);
 
 	void openInCgoban();
 	void printSgf (FILE *file);
 	void printText (FILE *file);
 	void printDebug (FILE *file);
-	void printExpected (FILE *out);
+	void printExpected (FILE *file);
 
 	std::vector< std::vector<Stone> > readExpected(FILE *in);
+
+	void printStoneSgf (int x, int y, FILE *file);
+	void printStoneDebug (int x, int y, FILE *file);
+	void printStoneExpected (int x, int y, FILE *file);
+
+	std::vector< std::vector<Stone> > expectedStones;
 };
 
 #endif

@@ -35,7 +35,6 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 	sf::Color avg = colorAverage(getSurroundingPixels(x, y, 6));
 	float brt = colorBrightness(avg);
 	float sat = colorSaturation(avg);
-//	printf("color near %d,%d is %d %d %d %d with %f/%f\n", x, y, color.r, color.g, color.b, color.a, colorBrightness(color), colorSaturation(color));
 
 	Stone c;
 
@@ -49,7 +48,28 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 	return c;
 }
 
+Stone Board::getStoneAtIntersection(int x, int y) {
+	return getStoneAtPoint(grid.getIntersection(x, y));
+}
+
+// If we don't have any expected stones, put an 'x' to make it clear that
+// something unexpected has happened.
+Stone Board::expectedStone(int x, int y) {
+	if (hasExpect)
+		return expectedStones[y-1][x-1];
+	else {
+		Stone s;
+		s.color = 'x';
+		return s;
+	}
+}
+
 std::vector<sf::Color> Board::getSurroundingPixels(int x, int y, int size) {
+	// This doesn't do what it says it does. (Specifically, it doesn't get
+	// the right number of surrounding pixels.) That's okay for now because
+	// I use it pretty arbitrarily, so it just needs to do something that
+	// looks sort of similar to what it says. I'll fix this when I need to.
+
 	std::vector<sf::Color> pixels;
 
 	for (int i = x - size/2; i < x + size/2; i++) {
@@ -83,64 +103,69 @@ void Board::printText (FILE *file) {
 	}
 }
 
+void Board::printStoneSgf(int x, int y, FILE *file) {
+	// The format for a stone is AB[xy] or AW[xy] where x and y are single
+	// letters a-s representing intersections.
+
+	Stone s = getStoneAtIntersection(x, y);
+	char c = s.color;
+	if (c == '.')
+		return;
+
+	char xcoord = '`' + x; // '`' is the character before 'a'
+	char ycoord = '`' + y;
+	fprintf(file, "A%c[%c%c]\n", c, xcoord, ycoord);
+}
+
 void Board::printSgf (FILE *file) {
 	// I don't really understand SGF, this is taken from perl's Image2SGF.
 	fprintf(file, "(;GM[1]FF[4]SZ[%d]\n", grid.size);
 	// PL[B] means it's black's turn to play, which is an okay default.
 	fprintf(file, "GN[seegoban conversion]\n\nAP[seegoban]\nPL[B]\n\n");
 
-	for (int i = 1; i <= grid.size; i++) {
-		for (int j = 1; j <= grid.size; j++) {
-			ph::vec2f pt = grid.getIntersection(j, i);
-			Stone s = getStoneAtPoint(pt);
-			char c = s.color;
-			if (c == '.') continue;
+	for (int i = 1; i <= grid.size; i++)
+		for (int j = 1; j <= grid.size; j++)
+			printStoneSgf(j, i, file);
 
-			char x = '`' + j; // '`' is the character before 'a'
-			char y = '`' + i;
-			fprintf(file, "A%c[%c%c]C[%d,%d]\n", c, x, y, s.x, s.y);
-		}
-	}
 	fprintf(file, ")\n");
 	fflush(file);
 }
 
-void Board::printDebug (FILE *file) {
-	for (int i = 1; i <= grid.size; i++) {
-		for (int j = 1; j <= grid.size; j++) {
-			ph::vec2f pt = grid.getIntersection(j, i);
-			Stone s = getStoneAtPoint(pt);
+void Board::printStoneDebug (int x, int y, FILE *file) {
+	Stone s = getStoneAtIntersection(x, y);
 
-			if (hasExpect)
-				fprintf(file,
-				        "%d\t%d\t%c\t%d\t%d\t%f\t%f\t%c\n",
-				        j, i, s.color, s.x, s.y,
-				        s.brightness, s.saturation,
-				        expectedStones[i-1][j-1].color);
-			else
-				fprintf(file,
-				        "%d\t%d\t%c\t%d\t%d\t%f\t%f\n",
-				        j, i, s.color, s.x, s.y,
-				        s.brightness, s.saturation);
-		}
-	}
+	if (hasExpect)
+		fprintf(file, "%d\t%d\t%c\t%d\t%d\t%f\t%f\t%c\n",
+		        x, y, s.color, s.x, s.y, s.brightness, s.saturation,
+		        expectedStone(x, y).color);
+	else
+		fprintf(file, "%d\t%d\t%c\t%d\t%d\t%f\t%f\n",
+		        x, y, s.color, s.x, s.y, s.brightness, s.saturation);
 }
 
-void Board::printExpected (FILE *out) {
-	for (int i = 1; i <= grid.size; i++) {
-		for (int j = 1; j <= grid.size; j++) {
-			ph::vec2f pt = grid.getIntersection(j, i);
-			Stone s = getStoneAtPoint(pt);
-			char c = expectedStones[i-1][j-1].color;
+void Board::printDebug (FILE *file) {
+	for (int i = 1; i <= grid.size; i++)
+		for (int j = 1; j <= grid.size; j++)
+			printStoneDebug(j, i, file);
+}
 
-			if (s.color == c)
-				continue;
+void Board::printStoneExpected (int x, int y, FILE *file) {
+	Stone s = getStoneAtIntersection(x, y);
+	char c = expectedStone(x, y).color;
 
-			fprintf(out, "%d,%d: expected %c, found %c (x: %d, y %d, brt: %f, sat: %f)\n",
-			        j, i, c, s.color, s.x, s.y,
-			        s.brightness, s.saturation);
-		}
-	}
+	if (s.color == c)
+		return;
+
+	fprintf(file,
+	        "%d,%d: expected %c, found %c "
+	        "(x: %d, y %d, brt: %f, sat: %f)\n",
+	        x, y, c, s.color, s.x, s.y, s.brightness, s.saturation);
+}
+
+void Board::printExpected (FILE *file) {
+	for (int i = 1; i <= grid.size; i++)
+		for (int j = 1; j <= grid.size; j++)
+			printStoneExpected(j, i, file);
 }
 
 std::vector< std::vector<Stone> > Board::readExpected(FILE *in) {
