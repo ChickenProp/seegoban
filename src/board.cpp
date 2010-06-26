@@ -7,7 +7,8 @@ float colorSaturation(sf::Color color);
 
 Board::Board() {}
 Board::Board(int size, const sf::Image &img, FILE *expect)
-	: grid(size), image(img), sprite(), view(), expectedStones()
+	: grid(size), image(img), sprite(), view(),
+	  hasExpect(false), expectedStones()
 {
 	float w = image.GetWidth()/2;
 	float h = image.GetHeight()/2;
@@ -15,8 +16,10 @@ Board::Board(int size, const sf::Image &img, FILE *expect)
 	view.SetHalfSize(w, h);
 	sprite.SetImage(img); // 'image' here doesn't seem to work?
 
-	if (expect)
+	if (expect) {
+		hasExpect = true;
 		expectedStones = readExpected(expect);
+	}
 }
 
 void Board::render (sf::RenderTarget &tgt) {
@@ -108,8 +111,17 @@ void Board::printDebug (FILE *file) {
 			ph::vec2f pt = grid.getIntersection(j, i);
 			Stone s = getStoneAtPoint(pt);
 
-			fprintf(file, "%d\t%d\t%c\t%d\t%d\t%f\t%f\n", j, i,
-			        s.color, s.x, s.y, s.brightness, s.saturation);
+			if (hasExpect)
+				fprintf(file,
+				        "%d\t%d\t%c\t%d\t%d\t%f\t%f\t%c\n",
+				        j, i, s.color, s.x, s.y,
+				        s.brightness, s.saturation,
+				        expectedStones[i-1][j-1].color);
+			else
+				fprintf(file,
+				        "%d\t%d\t%c\t%d\t%d\t%f\t%f\n",
+				        j, i, s.color, s.x, s.y,
+				        s.brightness, s.saturation);
 		}
 	}
 }

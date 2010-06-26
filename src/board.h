@@ -18,6 +18,7 @@ public:
 
 	void render(sf::RenderTarget &target);
 
+	bool hasExpect;
 	std::vector< std::vector<Stone> > expectedStones;
 
 	Stone getStoneAtPoint(ph::vec2f point);
