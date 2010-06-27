@@ -12,8 +12,17 @@ a cgoban window with the current board position.
 
 You can also provide an example of the 'correct' output, to see where seegoban
 is making mistakes. To do this, pass the -e switch on the command line, like:
+
 $ seegoban -e correct.txt board.png
-Then press 'e' after defining the grid.
+
+Then press 'e' after defining the grid. You can also press 'v' to view a
+distribution of the stones in xgraph. The x axis is brightness, the y axis is
+saturation. Each point represents an intersection: the brightness and saturation
+of the points around that intersection, and the colour that should be detected
+there (red for no stone, green for black, blue for white). You can also press
+'g' to print this data in a format suitable for input to xgraph. If you don't
+pass the -e switch, 'v' and 'g' still work, but only one data set (containing a
+point for every intersection) is displayed.
 
 The grid can also be defined from the command line. For each corner, pass the
 switch '-c x,y', where x and y are the coordinates on the full-sized image with
@@ -58,6 +67,9 @@ Bugs:
 
 * The grid is scaled along with the board, which can cause lines not to show up
   very well.
+* If you close xgraph by clicking the 'x' before closing seegoban, a lot of
+  error messages may start to appear. Instead, close xgraph by clicking the
+  'close' button in the top-left. I'm not sure why this happens.
 
 License:
 
