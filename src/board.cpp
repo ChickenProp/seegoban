@@ -93,30 +93,41 @@ void Board::openInCgoban () {
 	}
 }
 
-// pclose() returns when xgraph exits, so we need to fork or seegoban hangs
-// until xgraph is closed. (We don't need to do this for cgoban because it forks
-// all by itself.)
+// We can't avoid forking here: pclose() waits until the process finishes, so if
+// I tried to use popen() without forking, seegoban would hang. (This isn't a
+// problem with cgoban because that forks itself.) I tried to fork and then use
+// popen(), but it gave continous weird errors if xgraph wasn't closed properly.
+// This seems to work better, although it's more complicated.
 void Board::viewGraph () {
+	int stream[2];
+	if (pipe(stream) < 0) {
+		fprintf(stderr, "There was an error opening a stream.\n");
+		return;
+	}
+
 	pid_t pid = fork();
 
-	if (pid > 0)
-		return;
-	else if (pid == -1) {
+	if (pid == -1) {
 		fprintf(stderr, "There was an error forking in viewGraph().\n");
 		return;
 	}
+	else if (pid == 0) {
+		close(0);
+		close(stream[1]);
+		dup2(stream[0], 0);
 
-	FILE *stream = popen("xgraph -nl -P", "w");
-	if (stream == NULL) {
+		execlp("xgraph", "xgraph", "-nl", "-P", (char *) 0);
+
 		fprintf(stderr, "Could not open xgraph for some reason.\n");
-		return;
+		exit(1);
 	}
 	else {
-		printXGraph(stream);
-		pclose(stream);
-	}
+		close(stream[0]);
 
-	exit(0);
+		FILE *out = fdopen(stream[1], "w");
+		printXGraph(out);
+		fclose(out);
+	}
 }
 
 void Board::printText (FILE *file) {

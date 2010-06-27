@@ -67,9 +67,6 @@ Bugs:
 
 * The grid is scaled along with the board, which can cause lines not to show up
   very well.
-* If you close xgraph by clicking the 'x' before closing seegoban, a lot of
-  error messages may start to appear. Instead, close xgraph by clicking the
-  'close' button in the top-left. I'm not sure why this happens.
 
 License:
 
