@@ -27,6 +27,7 @@ public:
 	ph::vec2f sideMidpoint(int side);
 	ph::vec2f transformToLocal(const ph::vec2f &point);
 	ph::vec2f getIntersection(int x, int y);
+	ph::vec2f getIntersection2pp(int x, int y);
 };
 
 #endif

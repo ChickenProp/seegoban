@@ -49,6 +49,24 @@ void Grid::render(sf::RenderTarget &tgt) {
 	if (corners.size() < 4)
 		return;
 
+	sf::Shape line;
+
+	for (int x = 1; x <= size; x++) {
+		line = sf::Shape::Line(getIntersection2pp(x, 1),
+		                       getIntersection2pp(x, size),
+		                       1, sf::Color(255, 0, 0, 128));
+		tgt.Draw(line);
+	}
+
+	for (int y = 1; y <= size; y++) {
+		line = sf::Shape::Line(getIntersection2pp(1, y),
+		                       getIntersection2pp(size, y),
+		                       1, sf::Color(255, 0, 0, 128));
+		tgt.Draw(line);
+	}
+
+	return;
+
 	centre.render(tgt);
 
 	ph::vec2f v = transformToLocal(centre);
@@ -63,6 +81,13 @@ void Grid::render(sf::RenderTarget &tgt) {
 	renderSemi(tgt, corners[1], sidel, corners[2], sider, (size+1)/2.0);
 	renderSemi(tgt, corners[0], sidet, corners[1], sideb, (size+1)/2.0);
 	renderSemi(tgt, corners[3], sidet, corners[2], sideb, (size+1)/2.0);
+
+	sf::Shape circ = sf::Shape::Circle(
+	        ph::vec2f::intersect(corners[0], corners[1],
+		                     corners[2], corners[3]),
+		10, sf::Color(255, 255, 0)
+	        );
+	tgt.Draw(circ);
 }
 
 void Grid::renderSemi(sf::RenderTarget &tgt, ph::vec2f s11, ph::vec2f s12,
@@ -95,6 +120,12 @@ ph::vec2f Grid::sideMidpoint(int side) {
 }
 
 ph::vec2f Grid::getIntersection(int x, int y) {
+	if ((corners[0] - corners[1]).cross(corners[2] - corners[3]) != 0
+	    && (corners[0] - corners[3]).cross(corners[1] - corners[2]) != 0)
+	{
+		return getIntersection2pp(x, y);
+	}
+
 	// Take coordinates 1-indexed, for consistency with Go numbering.
 	x -= 1; y -= 1;
 
@@ -127,6 +158,30 @@ ph::vec2f Grid::getIntersection(int x, int y) {
 	return ph::vec2f(origin + x*u/(size/2) + y*v/(size/2));
 }
 
+
+// See http://void.printf.net/~mad/Perspective/
+ph::vec2f Grid::getIntersection2pp(int x, int y) {
+	// Take coordinates 1-indexed, for consistency with Go numbering.
+	x -= 1; y -= 1;
+
+	ph::vec2f c0, c1, c2, c3;
+	ph::vec2f horiz1, horiz2, proj1, proj2, parallel;
+	ph::vec2f xproj, yproj;
+
+	c0 = corners[0]; c1 = corners[1]; c2 = corners[2]; c3 = corners[3];
+
+	horiz1 = ph::vec2f::intersect(c0, c1, c2, c3);
+	horiz2 = ph::vec2f::intersect(c0, c3, c1, c2);
+
+	parallel = c0 + horiz1 - horiz2;
+	proj1 = ph::vec2f::intersect(horiz1, c2, c0, parallel);
+	proj2 = ph::vec2f::intersect(horiz2, c2, c0, parallel);
+
+	xproj = c0 + x*(proj1 - c0)/(size-1);
+	yproj = c0 + y*(proj2 - c0)/(size-1);
+
+	return ph::vec2f::intersect(xproj, horiz1, yproj, horiz2);
+}
 
 ph::vec2f Grid::transformToLocal(const ph::vec2f &point) {
 	/* We want to calculate t in [0, 1], the value such that moving 1/t
