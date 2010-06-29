@@ -64,45 +64,6 @@ void Grid::render(sf::RenderTarget &tgt) {
 		                       1, sf::Color(255, 0, 0, 128));
 		tgt.Draw(line);
 	}
-
-	return;
-
-	centre.render(tgt);
-
-	ph::vec2f v = transformToLocal(centre);
-	float s = v.x; float t = v.y;
-
-	ph::vec2f sidel = sideMidpoint(0);
-	ph::vec2f sideb = sideMidpoint(1);
-	ph::vec2f sider = sideMidpoint(2);
-	ph::vec2f sidet = sideMidpoint(3);
-
-	renderSemi(tgt, corners[0], sidel, corners[3], sider, (size+1)/2.0);
-	renderSemi(tgt, corners[1], sidel, corners[2], sider, (size+1)/2.0);
-	renderSemi(tgt, corners[0], sidet, corners[1], sideb, (size+1)/2.0);
-	renderSemi(tgt, corners[3], sidet, corners[2], sideb, (size+1)/2.0);
-
-	sf::Shape circ = sf::Shape::Circle(
-	        ph::vec2f::intersect(corners[0], corners[1],
-		                     corners[2], corners[3]),
-		10, sf::Color(255, 255, 0)
-	        );
-	tgt.Draw(circ);
-}
-
-void Grid::renderSemi(sf::RenderTarget &tgt, ph::vec2f s11, ph::vec2f s12,
-                      ph::vec2f s21, ph::vec2f s22, float numlines)
-{
-	sf::Shape line;
-	ph::vec2f u = (s12 - s11)/(numlines - 1);
-	ph::vec2f v = (s22 - s21)/(numlines - 1);
-
-	for (int i = 0; i < (int) numlines; i++) {
-		line = sf::Shape::Line(s11 + i*u, s21 + i*v,
-		                       1, sf::Color(255,0,0, 128));
-
-		tgt.Draw(line);
-	}
 }
 
 ph::vec2f Grid::sideMidpoint(int side) {

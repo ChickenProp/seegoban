@@ -21,8 +21,6 @@ public:
 	void moveNearest(float x, float y);
 	void moveNearest(ph::vec2f p);
 	void render(sf::RenderTarget &target);
-	void renderSemi(sf::RenderTarget &tgt, ph::vec2f c1, ph::vec2f c2,
-	                ph::vec2f c3, ph::vec2f c4, float numlines);
 
 	ph::vec2f sideMidpoint(int side);
 	ph::vec2f transformToLocal(const ph::vec2f &point);
