@@ -81,42 +81,60 @@ ph::vec2f Grid::sideMidpoint(int side) {
 }
 
 ph::vec2f Grid::getIntersection(int x, int y) {
-	if ((corners[0] - corners[1]).cross(corners[2] - corners[3]) != 0
-	    && (corners[0] - corners[3]).cross(corners[1] - corners[2]) != 0)
-	{
-		return getIntersection2pp(x, y);
+	int numParallels = 0;
+
+	if ((corners[0] - corners[1]).cross(corners[2] - corners[3]) == 0)
+		numParallels++;
+
+	if ((corners[0] - corners[3]).cross(corners[1] - corners[2]) == 0)
+		numParallels++;
+
+	switch (numParallels) {
+	case 0: return getIntersection2pp(x, y);
+	case 1: return getIntersection1pp(x, y);
 	}
 
+	// Linear.
+	
 	// Take coordinates 1-indexed, for consistency with Go numbering.
 	x -= 1; y -= 1;
 
-	ph::vec2f origin, u, v;
-	if (x <= size/2 && y <= size/2) {
-		origin = corners[0];
-		u = sideMidpoint(3) - origin;
-		v = sideMidpoint(0) - origin;
+	ph::vec2f u = corners[3] - corners[0];
+	ph::vec2f v = corners[1] - corners[0];
+
+	return corners[0] + x*u/(size-1) + y*v/(size-1);
+}
+
+ph::vec2f Grid::getIntersection1pp (int x, int y) {
+	// Take coordinates 1-indexed, for consistency with Go numbering.
+	x -= 1; y -= 1;
+
+	ph::vec2f c0, c1, c2, c3;
+	ph::vec2f vanish, eye, horizontal;
+	ph::vec2f xproj, yproj, tmpproj;
+
+	// Choose c0-c1 to be parallel to c2-c3, even if that's not how the
+	// corners themselves are aligned. If that's the case, we have to swap
+	// the x and y axes.
+	if ((corners[0] - corners[1]).cross(corners[2] - corners[3]) == 0) {
+		c0 = corners[0]; c1 = corners[1];
+		c2 = corners[2]; c3 = corners[3];
 	}
-	else if (x <= size/2 && y > size/2) {
-		origin = corners[1];
-		u = sideMidpoint(1) - origin;
-		v = sideMidpoint(0) - origin;
-		y = size - y - 1;
-	}
-	else if (x > size/2 && y <= size/2) {
-		origin = corners[3];
-		u = sideMidpoint(3) - origin;
-		x = size - x - 1;
-		v = sideMidpoint(2) - origin;
-	}
-	else { // x > size/2 && y > size/2
-		origin = corners[2];
-		u = sideMidpoint(1) - origin;
-		x = size - x - 1;
-		v = sideMidpoint(2) - origin;
-		y = size - y - 1;
+	else {
+		c0 = corners[0]; c1 = corners[3];
+		c2 = corners[2]; c3 = corners[1];
+		int temp = x; x = y; y = temp;
 	}
 
-	return ph::vec2f(origin + x*u/(size/2) + y*v/(size/2));
+	horizontal =  c1 - c0;
+	vanish = ph::vec2f::intersect(c0, c3, c1, c2);
+	eye = ph::vec2f::intersect(c1, c3, vanish, vanish + horizontal);
+
+	xproj = c0 + x*horizontal/(size-1);
+	tmpproj = c0 + y*horizontal/(size-1);
+	yproj = ph::vec2f::intersect(tmpproj, eye, c0, vanish);
+
+	return ph::vec2f::intersect(xproj, vanish, yproj, yproj + horizontal);
 }
 
 
