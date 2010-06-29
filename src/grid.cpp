@@ -52,15 +52,15 @@ void Grid::render(sf::RenderTarget &tgt) {
 	sf::Shape line;
 
 	for (int x = 1; x <= size; x++) {
-		line = sf::Shape::Line(getIntersection2pp(x, 1),
-		                       getIntersection2pp(x, size),
+		line = sf::Shape::Line(getIntersection(x, 1),
+		                       getIntersection(x, size),
 		                       1, sf::Color(255, 0, 0, 128));
 		tgt.Draw(line);
 	}
 
 	for (int y = 1; y <= size; y++) {
-		line = sf::Shape::Line(getIntersection2pp(1, y),
-		                       getIntersection2pp(size, y),
+		line = sf::Shape::Line(getIntersection(1, y),
+		                       getIntersection(size, y),
 		                       1, sf::Color(255, 0, 0, 128));
 		tgt.Draw(line);
 	}
