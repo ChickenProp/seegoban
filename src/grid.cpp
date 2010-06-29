@@ -1,18 +1,11 @@
 #include "grid.h"
 
-int solveQuadratic(float a, float b, float c,
-                   float *x1 = NULL, float *x2 = NULL);
-
 void Grid::corner(float x, float y) {
 	if (defined) return;
 
 	corners.push_back(GridPoint(x,y));
-	if (corners.size() >= 4) {
+	if (corners.size() >= 4)
 		defined = true;
-
-		centre = GridPoint( (corners[0] + corners[1]
-		                     + corners[2] + corners[3]) / 4);
-	}
 }
 
 void Grid::corner(ph::vec2f p) {
@@ -31,10 +24,7 @@ void Grid::moveNearest(float x, float y) {
 		}
 	}
 
-	if (!defined || v.distance(centre) >= v.distance(corners[nearest]))
-		corners[nearest] = v;
-	else
-		centre = v;
+	corners[nearest] = v;
 }
 
 void Grid::moveNearest(ph::vec2f p) {

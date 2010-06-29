@@ -3,32 +3,33 @@ seegoban - take a photo of a Go board and write the position in SGF.
 Usage: seegoban <photo>
 
 To use, click on the corners of the board. A grid will appear overlaying the
-board, with the centre point marked. If necessary, you can adjust any of the
-corners or the centre by clicking near them. When satisfied, you can press enter
-to write the board position in a simple text format, or 's' to write it in SGF,
-or 'd' to get full information about the board position in a format intended for
-debugging. If you have the program 'cgoban' installed, you can press 'c' to open
-a cgoban window with the current board position.
+board. If necessary, you can adjust any of the corners by clicking near
+them. When satisfied, you can press enter to write the board position in a
+simple text format, or 's' to write it in SGF, or 'd' to get full information
+about the board position in a format intended for debugging. If you have the
+program 'cgoban' installed, you can press 'c' to open a cgoban window with the
+current board position.
 
-You can also provide an example of the 'correct' output, to see where seegoban
-is making mistakes. To do this, pass the -e switch on the command line, like:
+To see where seegoban is making mistakes, you can tell it what the correct board
+position is. To do this, pass the -e switch on the command line, like:
 
 $ seegoban -e correct.txt board.png
 
-Then press 'e' after defining the grid. You can also press 'v' to view a
-distribution of the stones in xgraph. The x axis is brightness, the y axis is
-saturation. Each point represents an intersection: the brightness and saturation
-of the points around that intersection, and the colour that should be detected
-there (red for no stone, green for black, blue for white). You can also press
-'g' to print this data in a format suitable for input to xgraph. If you don't
-pass the -e switch, 'v' and 'g' still work, but only one data set (containing a
-point for every intersection) is displayed.
+After placing the grid, you can press 'e' to find out which stones are being
+detected incorrectly. If you have the program 'xgraph' installed, you can also
+press 'v' to view a graph of the distribution of the stones. The x axis is
+brightness, the y axis is saturation. Each point represents an intersection: the
+brightness and saturation of the points around that intersection, and the colour
+that should be detected there, regardless of what seegoban actually detects.
+(Red for no stone, green for black, blue for white). You can also press 'g' to
+print this data in a format suitable for input to xgraph. If you don't pass the
+-e switch, 'v' and 'g' still work, but only one data set (containing a point for
+every intersection) is displayed.
 
-The grid can also be defined from the command line. For each corner, pass the
+The grid can also be placed from the command line. For each corner, pass the
 switch '-c x,y', where x and y are the coordinates on the full-sized image with
-the origin in the top left. You cannot yet place the centre from the command
-line. If fewer than four corners are given, the rest may be placed from within
-the program.
+the origin in the top left. If fewer than four corners are given, the rest may
+be placed from within the program.
 
 Currently it doesn't get great results, but that will improve as I learn what
 heuristics to use.
@@ -50,10 +51,6 @@ and saturation S is: if w*B - x*S > m, there is a white stone there; if y*B +
 z*S < n, there is a black stone there; otherwise, there is no stone there.
 Suitable values for w, x, y, z, m, n are as-yet unknown, but I'm working on
 being able to collect that data.
-
-No scaling for perspective is done. Grid lines are evenly spaced up to the
-centre point, then evenly spaced after it. This turns out to be inadequate, so
-I'll add two-point perspective scaling at some point.
 
 Todo:
 
