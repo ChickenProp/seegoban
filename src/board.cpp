@@ -8,7 +8,8 @@ float colorSaturation(sf::Color color);
 Board::Board() {}
 Board::Board(int size, const sf::Image &img, FILE *expect)
 	: grid(size), image(img), sprite(), view(),
-	  hasExpect(false), expectedStones()
+	  hasExpect(false), expectedStones(),
+	  blackBrtMax(160), whiteBrtMin(160), colSatMax(65)
 {
 	float w = image.GetWidth()/2;
 	float h = image.GetHeight()/2;
@@ -38,12 +39,14 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 
 	Stone c;
 
-	if (sat > 50)
+	if (sat > colSatMax)
 		c = Stone::none(x, y, brt, sat);
-	else if (brt < 150)
+	else if (brt < blackBrtMax)
 		c = Stone::black(x, y, brt, sat);
-	else
+	else if (brt > whiteBrtMin)
 		c = Stone::white(x, y, brt, sat);
+	else
+		c = Stone::none(x, y, brt, sat);
 		
 	return c;
 }

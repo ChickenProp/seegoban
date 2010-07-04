@@ -16,6 +16,10 @@ public:
 	sf::Sprite sprite;
 	sf::View view;
 
+	int blackBrtMax;
+	int whiteBrtMin;
+	int colSatMax;
+
 	void render(sf::RenderTarget &target);
 
 	bool hasExpect;
