@@ -31,6 +31,15 @@ switch '-c x,y', where x and y are the coordinates on the full-sized image with
 the origin in the top left. If fewer than four corners are given, the rest may
 be placed from within the program.
 
+If the grid is placed from the command line, you can run seegoban
+noninteractively. The '-a' switch will cause seegoban to print the board
+position and exit without displaying a window. The output format can be selected
+with further command-line options:
+-t		simple text
+-s		SGF (default)
+-d		debug
+-e <file>	incorrectly detected stones
+
 Currently it doesn't get great results, but that will improve as I learn what
 heuristics to use.
 
