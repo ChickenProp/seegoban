@@ -54,7 +54,6 @@ int main(int argc, char **argv) {
 
 	char *filename = argv[optind];
 
-	sf::RenderWindow window(sf::VideoMode(640, 480, 32), "seegoban");
 	sf::Image board_image;
 	if (! board_image.LoadFromFile(filename))
 		return 1;
@@ -73,9 +72,25 @@ int main(int argc, char **argv) {
 			exit(1);
 		}
 
+		switch (opt_output) {
+		case 't':
+			board.printText(stdout);
+			break;
+		case 's':
+			board.printSgf(stdout);
+			break;
+		case 'd':
+			board.printDebug(stdout);
+			break;
+		case 'e':
+			board.printExpected(stdout);
+			break;
+		}
+
 		exit(0);
 	}
 
+	sf::RenderWindow window(sf::VideoMode(640, 480, 32), "seegoban");
 	window.SetView(board.view);
 
 	while (window.IsOpened()) {
