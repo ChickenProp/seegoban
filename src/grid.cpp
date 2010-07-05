@@ -32,6 +32,16 @@ void Grid::moveNearest(ph::vec2f p) {
 }
 
 void Grid::render(sf::RenderTarget &tgt) {
+// SFML's sf::Shape::Line renders using a GL_QUAD, which means it starts to
+// disappear if scaled down too much. Using GL_LINES fixes this.
+
+// Potential problem: I make no attempt to set the target to be active, because
+// for some reason only RenderWindows (not generic RenderTargets) have the
+// SetActive method.
+
+// I don't check for PreserveOpenGLStates. But I also don't change any
+// interesting state, so it sholudn't be an issue.
+
 	for (int i = 0; i < corners.size(); i++) {
 		corners[i].render(tgt);
 	}
@@ -41,19 +51,26 @@ void Grid::render(sf::RenderTarget &tgt) {
 
 	sf::Shape line;
 
+	glColor4f(1, 0, 0, 0.5);
+	glBegin(GL_LINES);
+
 	for (int x = 1; x <= size; x++) {
-		line = sf::Shape::Line(getIntersection(x, 1),
-		                       getIntersection(x, size),
-		                       1, sf::Color(255, 0, 0, 128));
-		tgt.Draw(line);
+		ph::vec2f p1 = getIntersection(x, 1);
+		ph::vec2f p2 = getIntersection(x, size);
+
+		glVertex2f(p1.x, p1.y);
+		glVertex2f(p2.x, p2.y);
 	}
 
 	for (int y = 1; y <= size; y++) {
-		line = sf::Shape::Line(getIntersection(1, y),
-		                       getIntersection(size, y),
-		                       1, sf::Color(255, 0, 0, 128));
-		tgt.Draw(line);
+		ph::vec2f p1 = getIntersection(1, y);
+		ph::vec2f p2 = getIntersection(size, y);
+
+		glVertex2f(p1.x, p1.y);
+		glVertex2f(p2.x, p2.y);
 	}
+
+	glEnd();
 }
 
 ph::vec2f Grid::getIntersection(int x, int y) {

@@ -71,8 +71,8 @@ Todo:
 
 Bugs:
 
-* The grid is scaled along with the board, which can cause lines not to show up
-  very well.
+* The size of the circles representing the grid corners changes depending on the
+  size of the board image.
 
 License:
 
