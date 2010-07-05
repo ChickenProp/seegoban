@@ -46,9 +46,9 @@ heuristics to use.
 Heuristics:
 
 To work out whether there is a stone at a given point, we take the average color
-of a 6x6 block surrounding it. If this color has saturation greater than 50, we
+of a 6x6 block surrounding it. If this color has saturation greater than 65, we
 assume there is no stone there. Otherwise the stone is assumed to be black if
-its brightness is less than 150, or white otherwise.
+its brightness is less than 160, or white otherwise.
 
 Representing a color as (r,g,b), its saturation is max{r,g,b} - min{r,g,b} (as
 in HSV colorspace) and its brightness is .30*r + .59*g + .11*b (which according
