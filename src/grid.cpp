@@ -35,24 +35,37 @@ void Grid::render(sf::RenderTarget &tgt) {
 // SFML's sf::Shape::Line renders using a GL_QUAD, which means it starts to
 // disappear if scaled down too much. Using GL_LINES fixes this.
 
-// Potential problem: I make no attempt to set the target to be active, because
-// for some reason only RenderWindows (not generic RenderTargets) have the
-// SetActive method.
+// It's a pretty bad hack. SFML loads the View matrix whenever it draws
+// something, which means that changing the View doesn't affect how raw OpenGL
+// calls will draw. But with PreserveOpenGLStates off, it doesn't unload the
+// matrix after drawing. So after drawing the image in Board::render, OpenGL is
+// in a state where we can draw sanely. (Except there's a texture bound, so I
+// have to get rid of that.)
 
-// I don't check for PreserveOpenGLStates. But I also don't change any
-// interesting state, so it sholudn't be an issue.
+// But when we draw a GridPoint, we switch back to the default View to do the
+// drawing. So we have to PreserveOpenGLStates for that, to avoid clobbering the
+// matrix.
+
+// Another potential problem: I make no attempt to set the target to be active,
+// because for some reason only RenderWindows (not generic RenderTargets) have
+// the SetActive method.
+
+	tgt.PreserveOpenGLStates(true);
 
 	for (int i = 0; i < corners.size(); i++) {
 		corners[i].render(tgt);
 	}
+
+	tgt.PreserveOpenGLStates(false);
 
 	if (corners.size() < 4)
 		return;
 
 	sf::Shape line;
 
-	glColor4f(1, 0, 0, 0.5);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glBegin(GL_LINES);
+	glColor4f(1, 0, 0, 0.5);
 
 	for (int x = 1; x <= size; x++) {
 		ph::vec2f p1 = getIntersection(x, 1);
