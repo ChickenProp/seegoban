@@ -71,8 +71,8 @@ Todo:
 
 Bugs:
 
-* The size of the circles representing the grid corners changes depending on the
-  size of the board image.
+* The grid is assumed to be convex. If this assumption does not hold, failure is
+  not graceful.
 
 License:
 

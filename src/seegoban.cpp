@@ -107,6 +107,13 @@ void handleEvents(sf::RenderWindow &window) {
 	while (window.GetEvent(e)) {
 		handleEvent(window, e);
 	}
+
+	const sf::Input &in = window.GetInput();
+	if (in.IsMouseButtonDown(sf::Mouse::Left) && board.grid.defined) {
+		ph::vec2f pt(window.ConvertCoords(in.GetMouseX(),
+		                                  in.GetMouseY()));
+		board.grid.moveNearest(pt);
+	}
 }
 
 void handleEvent(sf::RenderWindow &window, sf::Event e) {
@@ -121,8 +128,6 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 		case sf::Mouse::Left:
 			if (!board.grid.defined)
 				board.grid.corner(pt);
-			else
-				board.grid.moveNearest(pt);
 			break;
 		case sf::Mouse::Right:
 			Stone s = board.getStoneAtPoint(pt);
