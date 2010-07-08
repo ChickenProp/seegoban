@@ -31,6 +31,11 @@ void Grid::moveNearest(ph::vec2f p) {
 	moveNearest(p.x, p.y);
 }
 
+void Grid::printCorners(FILE *out) {
+	for (int i = 0; i < corners.size(); i++)
+		fprintf(out, "%f,%f\n", corners[i].x, corners[i].y);
+}
+
 void Grid::render(sf::RenderTarget &tgt) {
 // SFML's sf::Shape::Line renders using a GL_QUAD, which means it starts to
 // disappear if scaled down too much. Using GL_LINES fixes this.

@@ -163,6 +163,9 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 		case sf::Key::V:
 			board.viewGraph();
 			break;
+		case sf::Key::P:
+			board.grid.printCorners(stdout);
+			break;
 		}
 		break;
 	}

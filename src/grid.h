@@ -20,6 +20,7 @@ public:
 	void moveNearest(float x, float y);
 	void moveNearest(ph::vec2f p);
 	void render(sf::RenderTarget &target);
+	void printCorners(FILE *out);
 
 	ph::vec2f getIntersection(int x, int y);
 	ph::vec2f getIntersection1pp(int x, int y);
