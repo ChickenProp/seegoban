@@ -29,16 +29,12 @@ every intersection) is displayed.
 The grid can also be placed from the command line. For each corner, pass the
 switch '-c x,y', where x and y are the coordinates on the full-sized image with
 the origin in the top left. If fewer than four corners are given, the rest may
-be placed from within the program.
+be placed from within the program. Having placed the grid, you can press 'p' to
+print the locations of the corners for future use with '-c'.
 
 If the grid is placed from the command line, you can run seegoban
-noninteractively. The '-a' switch will cause seegoban to print the board
-position and exit without displaying a window. The output format can be selected
-with further command-line options:
--t		simple text
--s		SGF (default)
--d		debug
--e <file>	incorrectly detected stones
+noninteractively. Pass the '-a' switch with an argument specifying the output
+format: 't'ext, 's'gf, 'd'ebug, or 'e'xpected stones.
 
 Currently it doesn't get great results, but that will improve as I learn what
 heuristics to use.
