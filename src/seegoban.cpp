@@ -19,15 +19,11 @@ int main(int argc, char **argv) {
 	int num_coords = 0;
 	float coords[max_coords][2];
 	int c;
-	while ((c = getopt(argc, argv, "tsdac:e:")) != -1) {
+	while ((c = getopt(argc, argv, "a:c:e:")) != -1) {
 		switch (c) {
 		case 'a':
 			opt_auto = true;
-			break;
-		case 't': 
-		case 's': 
-		case 'd': 
-			opt_output = c;
+			opt_output = optarg[0];
 			break;
 		case 'c': {
 			coords[num_coords][0] = atof(optarg);
@@ -37,7 +33,6 @@ int main(int argc, char **argv) {
 			break;
 		}
 		case 'e':
-			opt_output = 'e';
 			opt_expect = true;
 			if (strcmp(optarg, "-") == 0)
 				expect_file = stdin;
@@ -84,6 +79,10 @@ int main(int argc, char **argv) {
 			break;
 		case 'e':
 			board.printExpected(stdout);
+			break;
+		default:
+			fprintf(stderr, "Unknown output format %c.\n",
+			        opt_output);
 			break;
 		}
 
