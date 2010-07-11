@@ -80,6 +80,15 @@ int main(int argc, char **argv) {
 		case 'e':
 			board.printExpected(stdout);
 			break;
+		case 'c':
+			board.openInCgoban();
+			break;
+		case 'g':
+			board.printXGraph(stdout);
+			break;
+		case 'v':
+			board.viewGraph();
+			break;
 		default:
 			fprintf(stderr, "Unknown output format %c.\n",
 			        opt_output);

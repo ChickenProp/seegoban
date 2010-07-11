@@ -34,7 +34,7 @@ print the locations of the corners for future use with '-c'.
 
 If the grid is placed from the command line, you can run seegoban
 noninteractively. Pass the '-a' switch with an argument specifying the output
-format: 't'ext, 's'gf, 'd'ebug, or 'e'xpected stones.
+format: 't'ext, 's'gf, 'd'ebug, 'e'xpected stones, 'g'raph, 'v'iew graph, or open in 'c'goban.
 
 Currently it doesn't get great results, but that will improve as I learn what
 heuristics to use.
