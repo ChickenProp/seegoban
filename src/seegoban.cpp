@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "ph-utils/vector.h"
 #include "board.h"
-#include "unistd.h"
+#include "options.h"
 #include <cstring>
 #include <vector>
 
@@ -11,63 +11,34 @@ void handleEvents(sf::RenderWindow &window);
 void handleEvent(sf::RenderWindow &window, sf::Event e);
 
 int main(int argc, char **argv) {
-	bool opt_auto = false;
-	bool opt_expect = false;
-	FILE *expect_file = NULL;
-	char opt_output = 's';
-	const int max_coords = 5;
-	int num_coords = 0;
-	float coords[max_coords][2];
-	int c;
-	while ((c = getopt(argc, argv, "a:c:e:")) != -1) {
-		switch (c) {
-		case 'a':
-			opt_auto = true;
-			opt_output = optarg[0];
-			break;
-		case 'c': {
-			coords[num_coords][0] = atof(optarg);
-			char *second = strchr(optarg, ',');
-			coords[num_coords][1] = atoi(second+1);
-			num_coords++;
-			break;
-		}
-		case 'e':
-			opt_expect = true;
-			if (strcmp(optarg, "-") == 0)
-				expect_file = stdin;
-			else
-				expect_file = fopen(optarg, "r");
-			break;
-		}
-	}
+	Options opts(argc, argv);
 
-	if (optind >= argc) {
+	if (opts.index >= argc) {
 		fprintf(stderr, "Must supply a board image.\n");
 		exit(1);
 	}
 
-	char *filename = argv[optind];
+	char *filename = argv[opts.index];
 
 	sf::Image board_image;
 	if (! board_image.LoadFromFile(filename))
 		return 1;
 
-	if (!opt_expect) 
+	if (!opts.expect) 
 		board = Board(19, board_image);
 	else
-		board = Board(19, board_image, expect_file);
+		board = Board(19, board_image, opts.expect_file);
 
-	for (int i = 0; i < num_coords; i++)
-		board.grid.corner(coords[i][0], coords[i][1]);
+	for (int i = 0; i < opts.num_coords; i++)
+		board.grid.corner(opts.coords[i][0], opts.coords[i][1]);
 
-	if (opt_auto) {
+	if (opts.autorun) {
 		if (!board.grid.defined) {
 			fprintf(stderr, "All four corners must be defined.\n");
 			exit(1);
 		}
 
-		switch (opt_output) {
+		switch (opts.auto_output) {
 		case 't':
 			board.printText(stdout);
 			break;
@@ -91,7 +62,7 @@ int main(int argc, char **argv) {
 			break;
 		default:
 			fprintf(stderr, "Unknown output format %c.\n",
-			        opt_output);
+			        opts.auto_output);
 			break;
 		}
 
