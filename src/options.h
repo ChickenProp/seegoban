@@ -16,6 +16,9 @@ public:
 
 	int num_coords;
 	float coords[4][2];
+
+	bool given_thresholds;
+	float thresholds[3];
 };
 
 #endif

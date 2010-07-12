@@ -29,6 +29,9 @@ int main(int argc, char **argv) {
 	else
 		board = Board(19, board_image, opts.expect_file);
 
+	if (opts.given_thresholds)
+		board.setThresholds(opts.thresholds);
+
 	for (int i = 0; i < opts.num_coords; i++)
 		board.grid.corner(opts.coords[i][0], opts.coords[i][1]);
 

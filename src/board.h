@@ -16,9 +16,10 @@ public:
 	sf::Sprite sprite;
 	sf::View view;
 
-	int blackBrtMax;
-	int whiteBrtMin;
-	int colSatMax;
+	float blackBrtMax;
+	float whiteBrtMin;
+	float colSatMax;
+	void setThresholds(float *thresholds);
 
 	void render(sf::RenderTarget &target);
 

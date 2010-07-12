@@ -34,7 +34,15 @@ print the locations of the corners for future use with '-c'.
 
 If the grid is placed from the command line, you can run seegoban
 noninteractively. Pass the '-a' switch with an argument specifying the output
-format: 't'ext, 's'gf, 'd'ebug, 'e'xpected stones, 'g'raph, 'v'iew graph, or open in 'c'goban.
+format: 't'ext, 's'gf, 'd'ebug, 'e'xpected stones, 'g'raph, 'v'iew graph, or
+open in 'c'goban.
+
+The '-t' option can be used to set thresholds for stone-detection. It takes
+three comma-separated arguments: "-t A,B,C". A is the maximum brightness of a
+black stone, B is the minimum brightness of a white stone, and C is the maximum
+saturation of any stone. The default values are 159,160,65, which works well for
+the example board-1. 60,200,255 works for board-3. For an arbitrary photograph,
+you may be able to use xgraph to find good values.
 
 Currently it doesn't get great results, but that will improve as I learn what
 heuristics to use.

@@ -4,10 +4,13 @@
 #include <cstring>
 
 Options::Options (int argc, char **argv)
-  : autorun(false), expect(false), num_coords(0)
+	: autorun(false),
+	  expect(false),
+	  num_coords(0),
+	  given_thresholds(false)
 {
 	int c;
-	while ((c = getopt(argc, argv, "a:c:e:")) != -1) {
+	while ((c = getopt(argc, argv, "a:c:e:t:")) != -1) {
 		switch (c) {
 		case 'a':
 			autorun = true;
@@ -27,6 +30,14 @@ Options::Options (int argc, char **argv)
 			else
 				expect_file = fopen(optarg, "r");
 			break;
+		case 't': {
+			given_thresholds = true;
+			thresholds[0] = atof(optarg);
+			char *second = strchr(optarg, ',') + 1;
+			thresholds[1] = atof(second);
+			char *third = strchr(second, ',') + 1;
+			thresholds[2] = atof(third);
+		}
 		}
 	}
 

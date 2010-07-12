@@ -9,7 +9,7 @@ Board::Board() {}
 Board::Board(int size, const sf::Image &img, FILE *expect)
 	: grid(size), image(img), sprite(), view(),
 	  hasExpect(false), expectedStones(),
-	  blackBrtMax(160), whiteBrtMin(160), colSatMax(65)
+	  blackBrtMax(159), whiteBrtMin(160), colSatMax(65)
 {
 	float w = image.GetWidth()/2;
 	float h = image.GetHeight()/2;
@@ -21,6 +21,12 @@ Board::Board(int size, const sf::Image &img, FILE *expect)
 		hasExpect = true;
 		expectedStones = readExpected(expect);
 	}
+}
+
+void Board::setThresholds(float *thresholds) {
+	blackBrtMax = thresholds[0];
+	whiteBrtMin = thresholds[1];
+	colSatMax = thresholds[2];
 }
 
 void Board::render (sf::RenderTarget &tgt) {
@@ -41,9 +47,9 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 
 	if (sat > colSatMax)
 		c = Stone::none(x, y, brt, sat);
-	else if (brt < blackBrtMax)
+	else if (brt <= blackBrtMax)
 		c = Stone::black(x, y, brt, sat);
-	else if (brt > whiteBrtMin)
+	else if (brt >= whiteBrtMin)
 		c = Stone::white(x, y, brt, sat);
 	else
 		c = Stone::none(x, y, brt, sat);
