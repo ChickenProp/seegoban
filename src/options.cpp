@@ -19,7 +19,7 @@ Options::Options (int argc, char **argv)
 		case 'c': {
 			coords[num_coords][0] = atof(optarg);
 			char *second = strchr(optarg, ',');
-			coords[num_coords][1] = atoi(second+1);
+			coords[num_coords][1] = atof(second+1);
 			num_coords++;
 			break;
 		}
