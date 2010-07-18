@@ -5,13 +5,6 @@
   (apply #'+ (map 'list (lambda (x y) (abs (- x y)))
 		  p1 p2)))
 
-(defun cartesian-product (&rest sets)
-  (if (null sets)
-      (list nil)
-      (loop for x in (first sets)
-	 appending (loop for y in (apply #'cartesian-product (rest sets))
-		      collecting (cons x y)))))
-
 (defun combinations (seq n)
   "Returns the possible order-independent combinations of n distinct elements
 from seq."
@@ -25,18 +18,6 @@ from seq."
 			     (cons (car lst) s))
 			   (combinations (cdr lst) (- n 1)))
 		   (combinations (cdr lst) n))))))
-
-(defun arg-min (fn val &rest more-vals)
-  "Returns the value minimizing (fn val)"
-  (cond ((null more-vals)
-	 val)
-	((> (funcall fn val) (funcall fn (car more-vals)))
-	 (apply #'arg-min fn more-vals))
-	(t
-	 (apply #'arg-min fn (cons val (cdr more-vals))))))
-
-(defun apply-fn (fn)
-  (lambda (x) (apply fn x)))
 
 (defun iterate (n fn start)
   "(fn (fn (fn ... (fn start)...))), where fn is called n times."
@@ -94,8 +75,6 @@ from seq."
 	     (combinations c-points 2))
 	#'<
 	:key #'car))
-
-(setq *print-circle* t)
 
 (defun reduce-sorted-distance-pairs (sdps)
   (let* ((best (car sdps))
