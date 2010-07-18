@@ -12,6 +12,20 @@
 	 appending (loop for y in (apply #'cartesian-product (rest sets))
 		      collecting (cons x y)))))
 
+(defun combinations (seq n)
+  "Returns the possible order-independent combinations of n distinct elements
+from seq."
+  (cond ((= n 0)
+	 (list nil))
+	((> n (length seq))
+	 nil)
+	(t
+	 (let ((lst (coerce seq 'list)))
+	   (append (mapcar (lambda (s)
+			     (cons (car lst) s))
+			   (combinations (cdr lst) (- n 1)))
+		   (combinations (cdr lst) n))))))
+
 (defun arg-min (fn val &rest more-vals)
   "Returns the value minimizing (fn val)"
   (cond ((null more-vals)
@@ -24,27 +38,90 @@
 (defun apply-fn (fn)
   (lambda (x) (apply fn x)))
 
-(defun cluster-distance (c1 c2)
-  (apply #'min (map 'list
-		    (lambda (x) (apply #'distance x))
-		    (cartesian-product c1 c2))))
+(defun iterate (n fn start)
+  "(fn (fn (fn ... (fn start)...))), where fn is called n times."
+  (if (= n 0)
+      start
+      (iterate (- n 1) fn (funcall fn start))))
 
-(defun nearest-clusters (clusters)
-  (apply #'arg-min
-	 (apply-fn #'cluster-distance)
-	 (remove-if (apply-fn #'equal)
-		    (cartesian-product clusters clusters))))
+(defun uniq (lst &optional (test #'eql))
+  "Returns lst with duplicate elements removed."
+  (if (null lst)
+      nil
+      (let ((uniq-cdr (uniq (cdr lst) test)))
+	(if (member (car lst) uniq-cdr :test test)
+	    uniq-cdr
+	    (cons (car lst) uniq-cdr)))))
 
-(defun reduce-clusters (clusters)
-  (let ((nearest (nearest-clusters clusters)))
-    (append (remove-if (lambda (cluster) (find cluster nearest :test #'equal))
-		       clusters)
-	    (list (apply #'union nearest)))))
+(defun flatten (lst)
+  (cond ((atom lst)
+	 lst)
+	((atom (car lst))
+	 (cons (car lst) (flatten (cdr lst))))
+	(t
+	 (append (flatten (car lst))
+		 (flatten (cdr lst))))))
 
-(defun reduce-to-n-clusters (n clusters)
-  (if (<= (length clusters) n)
-      clusters
-      (reduce-to-n-clusters n (reduce-clusters clusters))))
+(defun dotree* (tree fn)
+  (cond ((null tree)
+	 nil)
+	((consp tree)
+	 (dotree* (car tree) fn)
+	 (dotree* (cdr tree) fn))
+	(t
+	 (funcall fn tree))))
+
+(defmacro dotree ((var tree &optional ret) &body body)
+  `(progn
+     (dotree* ,tree (lambda (,var) ,@body))
+     ,ret))
+
+(defstruct c-point ; abbreviation for clustered-point
+  point
+  cluster)
+
+(defun cluster (point)
+  (let ((cp (make-c-point :point point :cluster nil)))
+    (setf (c-point-cluster cp) (list cp))
+    cp))
+
+(defun c-point-distances (c-points)
+  (sort (map 'list
+	     (lambda (x)
+	       (cons (distance (c-point-point (car x))
+			       (c-point-point (cadr x)))
+		     x))
+	     (combinations c-points 2))
+	#'<
+	:key #'car))
+
+(setq *print-circle* t)
+
+(defun reduce-sorted-distance-pairs (sdps)
+  (let* ((best (car sdps))
+	 (c-point-1 (second best))
+	 (clust-1 (c-point-cluster c-point-1))
+	 (c-point-2 (third best))
+	 (clust-2 (c-point-cluster c-point-2)))
+    
+    (if (eq (c-point-cluster c-point-1)
+	    (c-point-cluster c-point-2))
+	(reduce-sorted-distance-pairs (cdr sdps))
+	(progn
+	  (dotree (c-point clust-2)
+	    (setf (c-point-cluster c-point) clust-1))
+	  (setf (cdr clust-1) (cons (car clust-1) (cdr clust-1)))
+	  (setf (car clust-1) clust-2)
+	  (cdr sdps)))))
+
+(defun clusterize (n points)
+  (let ((c-points (mapcar #'cluster points)))
+    (iterate (- (length points) n)
+	     #'reduce-sorted-distance-pairs
+	     (c-point-distances c-points))
+    (mapcar (lambda (clust)
+	      (mapcar #'c-point-point (flatten clust)))
+	    (uniq (mapcar #'c-point-cluster c-points)))))
 
 ;; Some points to try clustering
 (defvar *points*
@@ -66,10 +143,8 @@
     (250 7)
     (245 10)
     (235 20)
-    (230 15)
+    (230 15) 
     (231 16)
     (246 13)))
 
-(defvar *clusters* (mapcar #'list *points*))
-
-(time (princ (reduce-to-n-clusters 3 *clusters*)))
+(princ (time (clusterize 3 *points*)))
