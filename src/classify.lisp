@@ -106,8 +106,8 @@ from seq."
 	      (mapcar #'c-point-point (flatten clust)))
 	    (uniq (mapcar #'c-point-cluster c-points)))))
 
-;; Some points to try clustering
-(defvar *points*
+;; Some points to try clustering, for testing purposes
+#+nil (defvar *points*
   '((:1 45 11)
     (:2 44 16)
     (:3 40 17)
@@ -130,4 +130,5 @@ from seq."
     (:20 231 16)
     (:21 246 13)))
 
-(princ (time (clusterize 3 *points*)))
+(let ((points (read)))
+  (print (time (clusterize 3 points))))
