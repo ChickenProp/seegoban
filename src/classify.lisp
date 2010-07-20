@@ -1,9 +1,13 @@
 ;; My intuition is that Manhattan distance will give better results than
 ;; Euclidean, because it increases faster when all the components change. But I
 ;; can test that later.
+
+;; p1 and p2 are taken to be lists: (name coords...).
 (defun distance (p1 p2)
-  (apply #'+ (map 'list (lambda (x y) (abs (- x y)))
-		  p1 p2)))
+  (apply #'+ (map 'list
+		  (lambda (x y) (abs (- x y)))
+		  (cdr p1)
+		  (cdr p2))))
 
 (defun combinations (seq n)
   "Returns the possible order-independent combinations of n distinct elements
@@ -104,26 +108,26 @@ from seq."
 
 ;; Some points to try clustering
 (defvar *points*
-  '((45 11)
-    (44 16)
-    (40 17)
-    (42 30)
-    (43 17)
-    (45 21)
-    (90 32)
-    (105 12)
-    (110 14)
-    (152 13)
-    (160 18)
-    (145 23)
-    (110 27)
-    (170 26)
-    (250 6)
-    (250 7)
-    (245 10)
-    (235 20)
-    (230 15) 
-    (231 16)
-    (246 13)))
+  '((:1 45 11)
+    (:2 44 16)
+    (:3 40 17)
+    (:4 42 30)
+    (:5 43 17)
+    (:6 45 21)
+    (:7 90 32)
+    (:8 105 12)
+    (:9 110 14)
+    (:10 152 13)
+    (:11 160 18)
+    (:12 145 23)
+    (:13 110 27)
+    (:14 170 26)
+    (:15 250 6)
+    (:16 250 7)
+    (:17 245 10)
+    (:18 235 20)
+    (:19 230 15) 
+    (:20 231 16)
+    (:21 246 13)))
 
 (princ (time (clusterize 3 *points*)))
