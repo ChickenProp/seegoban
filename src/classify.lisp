@@ -98,13 +98,35 @@ from seq."
 	  (cdr sdps)))))
 
 (defun clusterize (n points)
-  (let ((c-points (mapcar #'cluster points)))
+  (let* ((c-points (mapcar #'cluster points))
+	 (distances (c-point-distances c-points)))
     (iterate (- (length points) n)
 	     #'reduce-sorted-distance-pairs
-	     (c-point-distances c-points))
+	     distances)
     (mapcar (lambda (clust)
 	      (mapcar #'c-point-point (flatten clust)))
 	    (uniq (mapcar #'c-point-cluster c-points)))))
+
+
+;; If there's only one point in a set, xgraph doesn't draw it. So we place two
+;; points in the same position instead, so they at least show up with -m,
+;; -M, -p or -P.
+;; (~@* means "go back to the first argument".)
+(defun print-clusters-graph (clusters)
+  (loop for clust in clusters
+     do (let ((control-string (if (= (length clust) 1)
+				  "~F ~F~%~@*~F ~F~%"
+				  "~F ~F~%")))
+	  (loop for point in clust
+	     do (format t control-string
+			(second point) (third point)))
+	  (format t "~%"))))
+
+(defun print-clusters (output-type clusters)
+  (case (intern (string-upcase output-type) 'keyword)
+    (:graph (print-clusters-graph clusters))
+    (:lisp (print clusters))
+    (t (format t "Unknown output format '~S'.~%" output-type))))
 
 ;; Some points to try clustering, for testing purposes
 #+nil (defvar *points*
@@ -131,4 +153,6 @@ from seq."
     (:21 246 13)))
 
 (let ((points (read)))
-  (print (time (clusterize 3 points))))
+  (print-clusters (or (second *posix-argv*) "lisp")
+		  (clusterize 3 points)))
+(fresh-line)
