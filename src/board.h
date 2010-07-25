@@ -26,6 +26,7 @@ public:
 	bool hasExpect;
 	Stone expectedStone(int x, int y);
 
+	int sampleSize;
 	Stone getStoneAtPoint(ph::vec2f point);
 	Stone getStoneAtIntersection(int x, int y);
 	std::vector<sf::Color> getSurroundingPixels(int x, int y, int size);

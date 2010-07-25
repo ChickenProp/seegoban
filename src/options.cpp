@@ -7,10 +7,11 @@ Options::Options (int argc, char **argv)
 	: autorun(false),
 	  expect(false),
 	  num_coords(0),
-	  given_thresholds(false)
+	  given_thresholds(false),
+	  sample_size(0)
 {
 	int c;
-	while ((c = getopt(argc, argv, "a:c:e:t:")) != -1) {
+	while ((c = getopt(argc, argv, "a:c:e:s:t:")) != -1) {
 		switch (c) {
 		case 'a':
 			autorun = true;
@@ -29,6 +30,9 @@ Options::Options (int argc, char **argv)
 				expect_file = stdin;
 			else
 				expect_file = fopen(optarg, "r");
+			break;
+		case 's':
+			sample_size = atoi(optarg);
 			break;
 		case 't': {
 			given_thresholds = true;

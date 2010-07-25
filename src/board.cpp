@@ -9,7 +9,8 @@ Board::Board() {}
 Board::Board(int size, const sf::Image &img, FILE *expect)
 	: grid(size), image(img), sprite(), view(),
 	  hasExpect(false), expectedStones(),
-	  blackBrtMax(159), whiteBrtMin(160), colSatMax(65)
+	  blackBrtMax(159), whiteBrtMin(160), colSatMax(65),
+	  sampleSize(7)
 {
 	float w = image.GetWidth()/2;
 	float h = image.GetHeight()/2;
@@ -39,7 +40,7 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 	int x = (int) l.x;
 	int y = (int) l.y;
 
-	sf::Color avg = colorAverage(getSurroundingPixels(x, y, 7));
+	sf::Color avg = colorAverage(getSurroundingPixels(x, y, sampleSize));
 	float brt = colorBrightness(avg);
 	float sat = colorSaturation(avg);
 

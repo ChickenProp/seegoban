@@ -44,15 +44,20 @@ saturation of any stone. The default values are 159,160,65, which works well for
 the example board-1. 60,200,255 works for board-3. For an arbitrary photograph,
 you may be able to use xgraph to find good values.
 
+The '-s' option controls the size of the sample block used to determine the
+colour at a particular point. The default is 7, for a 7x7 square. The colour at
+point (x,y) is the average colour of all pixels in such a square centred on
+(x,y).
+
 Currently it doesn't get great results, but that will improve as I learn what
 heuristics to use.
 
 Heuristics:
 
 To work out whether there is a stone at a given point, we take the average color
-of a 6x6 block surrounding it. If this color has saturation greater than 65, we
-assume there is no stone there. Otherwise the stone is assumed to be black if
-its brightness is less than 160, or white otherwise.
+of a 7x7 (by default) block surrounding it. If this color has saturation greater
+than 65, we assume there is no stone there. Otherwise the stone is assumed to be
+black if its brightness is less than 160, or white otherwise.
 
 Representing a color as (r,g,b), its saturation is max{r,g,b} - min{r,g,b} (as
 in HSV colorspace) and its brightness is .30*r + .59*g + .11*b (which according

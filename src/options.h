@@ -19,6 +19,8 @@ public:
 
 	bool given_thresholds;
 	float thresholds[3];
+
+	int sample_size;
 };
 
 #endif

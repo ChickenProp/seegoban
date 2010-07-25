@@ -32,6 +32,9 @@ int main(int argc, char **argv) {
 	if (opts.given_thresholds)
 		board.setThresholds(opts.thresholds);
 
+	if (opts.sample_size)
+		board.sampleSize = opts.sample_size;
+
 	for (int i = 0; i < opts.num_coords; i++)
 		board.grid.corner(opts.coords[i][0], opts.coords[i][1]);
 
