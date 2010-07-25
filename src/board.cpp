@@ -39,7 +39,7 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 	int x = (int) l.x;
 	int y = (int) l.y;
 
-	sf::Color avg = colorAverage(getSurroundingPixels(x, y, 6));
+	sf::Color avg = colorAverage(getSurroundingPixels(x, y, 7));
 	float brt = colorBrightness(avg);
 	float sat = colorSaturation(avg);
 
@@ -73,16 +73,13 @@ Stone Board::expectedStone(int x, int y) {
 	}
 }
 
+// Get the (size^2) pixels in a square centred on (x,y). If size is even, the
+// centre of the square is at the bottom right of the (x,y) pixel.
 std::vector<sf::Color> Board::getSurroundingPixels(int x, int y, int size) {
-	// This doesn't do what it says it does. (Specifically, it doesn't get
-	// the right number of surrounding pixels.) That's okay for now because
-	// I use it pretty arbitrarily, so it just needs to do something that
-	// looks sort of similar to what it says. I'll fix this when I need to.
-
 	std::vector<sf::Color> pixels;
 
-	for (int i = x - size/2; i < x + size/2; i++) {
-		for (int j = y - size/2; j < y + size/2; j++) {
+	for (int i = x - (size-1)/2; i < x + size/2; i++) {
+		for (int j = y - (size-1)/2; j < y + size/2; j++) {
 			pixels.push_back(image.GetPixel(i, j));
 		}
 	}
