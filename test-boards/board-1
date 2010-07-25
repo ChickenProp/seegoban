@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd ${0%/*}
+
+../seegoban board-1.png  -e board-1.txt \
+    -c 374,74 -c 196,460 -c 994,476 -c 1004,76 \
+    "$@"
