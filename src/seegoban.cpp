@@ -117,8 +117,8 @@ void handleEvent(sf::RenderWindow &window, sf::Event e) {
 			break;
 		case sf::Mouse::Right:
 			Stone s = board.getStoneAtPoint(pt);
-			printf("(%d, %d) %c: %f, %f\n", s.x, s.y, s.color,
-			       s.brightness, s.saturation);
+			printf("(%d, %d) %c: %f, %d\n", s.x, s.y, s.color,
+			       s.brightness(), s.saturation());
 			break;
 		}
 		break;

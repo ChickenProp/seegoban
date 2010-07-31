@@ -2,8 +2,6 @@
 #include "ph-utils/math-util.h"
 
 sf::Color colorAverage(std::vector<sf::Color> colors);
-float colorBrightness(sf::Color color);
-float colorSaturation(sf::Color color);
 
 Board::Board() {}
 Board::Board(int size, const sf::Image &img, FILE *expect)
@@ -41,19 +39,19 @@ Stone Board::getStoneAtPoint(ph::vec2f p) {
 	int y = (int) l.y;
 
 	sf::Color avg = colorAverage(getSurroundingPixels(x, y, sampleSize));
-	float brt = colorBrightness(avg);
-	float sat = colorSaturation(avg);
+	float brt = Stone::brightness(avg);
+	int sat = Stone::saturation(avg);
 
 	Stone c;
 
 	if (sat > colSatMax)
-		c = Stone::none(x, y, brt, sat);
+		c = Stone::none(x, y, avg);
 	else if (brt <= blackBrtMax)
-		c = Stone::black(x, y, brt, sat);
+		c = Stone::black(x, y, avg);
 	else if (brt >= whiteBrtMin)
-		c = Stone::white(x, y, brt, sat);
+		c = Stone::white(x, y, avg);
 	else
-		c = Stone::none(x, y, brt, sat);
+		c = Stone::none(x, y, avg);
 		
 	return c;
 }
@@ -178,13 +176,15 @@ void Board::printSgf (FILE *file) {
 void Board::printStoneDebug (int x, int y, FILE *file) {
 	Stone s = getStoneAtIntersection(x, y);
 
-	if (hasExpect)
-		fprintf(file, "%d\t%d\t%c\t%d\t%d\t%f\t%f\t%c\n",
-		        x, y, s.color, s.x, s.y, s.brightness, s.saturation,
-		        expectedStone(x, y).color);
-	else
-		fprintf(file, "%d\t%d\t%c\t%d\t%d\t%f\t%f\n",
-		        x, y, s.color, s.x, s.y, s.brightness, s.saturation);
+	fprintf(file,
+	        "%2d %2d     "
+	        "%4d %4d     "
+	        "%3d  %3d  %3d     "
+	        "%7.3f  %3d     "
+	        "%c %c\n",
+	        x, y, s.x, s.y, s.rgb.r, s.rgb.g, s.rgb.b,
+	        s.brightness(), s.saturation(),
+	        s.color, (hasExpect ? expectedStone(x, y).color : ' '));
 }
 
 void Board::printDebug (FILE *file) {
@@ -197,8 +197,8 @@ void printXGraphSet (std::vector<Stone> stones, const char *name, FILE *file) {
 	fprintf(file, "\"%s\"\n", name);
 
 	for (int i = 0; i < stones.size(); i++)
-		fprintf(file, "%f %f\n",
-		        stones[i].brightness, stones[i].saturation);
+		fprintf(file, "%f %d\n",
+		        stones[i].brightness(), stones[i].saturation());
 
 	fprintf(file, "\n");
 }
@@ -242,8 +242,8 @@ void Board::printStoneExpected (int x, int y, FILE *file) {
 
 	fprintf(file,
 	        "%d,%d: expected %c, found %c "
-	        "(x: %d, y %d, brt: %f, sat: %f)\n",
-	        x, y, c, s.color, s.x, s.y, s.brightness, s.saturation);
+	        "(x: %d, y %d, brt: %f, sat: %d)\n",
+	        x, y, c, s.color, s.x, s.y, s.brightness(), s.saturation());
 }
 
 void Board::printExpected (FILE *file) {
@@ -286,12 +286,4 @@ sf::Color colorAverage(std::vector<sf::Color> colors) {
 	}
 
 	return sf::Color(r/count, g/count, b/count, a/count);
-}
-
-float colorBrightness(sf::Color c) {
-	return .30*c.r + .59*c.g + .11*c.b;
-}
-
-float colorSaturation(sf::Color c) {
-	return ph::max3(c.r, c.g, c.b) - ph::min3(c.r, c.g, c.b);
 }
