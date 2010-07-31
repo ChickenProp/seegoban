@@ -3,10 +3,13 @@
 # with argument 'rgb', ((x y) r g b)
 # otherwise, ((x y) brightness saturation)
 
-BEGIN { print '('; }
+BEGIN {
+	our $mode = shift() || 'bs';
+	print '(';
+}
 END { print ')'; }
 
-if (shift eq "rgb") {
+if ($mode eq "rgb") {
 	print "(($F[0] $F[1]) $F[4] $F[5] $F[6])";
 }
 else {
