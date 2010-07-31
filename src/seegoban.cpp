@@ -78,12 +78,13 @@ int main(int argc, char **argv) {
 	sf::RenderWindow window(sf::VideoMode(640, 480, 32), "seegoban");
 	window.SetView(board.view);
 
+	// handleEvents needs to be at the end so that the window hasn't closed
+	// by the time we call render/display.
 	while (window.IsOpened()) {
-		handleEvents(window);
-
 		board.render(window);
-
 		window.Display();
+
+		handleEvents(window);
 	}
 }
 
