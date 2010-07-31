@@ -1,3 +1,5 @@
+#! /usr/bin/sbcl --script
+
 ;; My intuition is that Manhattan distance will give better results than
 ;; Euclidean, because it increases faster when all the components change. But I
 ;; can test that later.
