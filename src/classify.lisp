@@ -118,8 +118,17 @@ from seq."
 				  "~F ~F~%~@*~F ~F~%"
 				  "~F ~F~%")))
 	  (loop for point in clust
-	     do (format t control-string
-			(second point) (third point)))
+	     ;; If there are two coordinates (+ name), brightness and
+	     ;; saturation. Otherwise, rgb.
+	     do (if (= (list-length point) 3)
+		    (format t control-string
+			    (second point) (third point))
+		    (format t control-string
+			    (+ (* 0.30 (second point))
+			       (* 0.59 (third point))
+			       (* 0.11 (fourth point)))
+			    (- (apply #'max (cdr point))
+			       (apply #'min (cdr point))))))
 	  (format t "~%"))))
 
 (defun print-clusters (output-type clusters)
