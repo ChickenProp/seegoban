@@ -140,11 +140,9 @@ from seq."
   (/ (apply #'+ vals) (length vals)))
 
 (defun point-mean (points)
-  (cons 'a
-	(apply #'map
-	       'list
-	       #'mean
-	       (mapcar #'cdr points))))
+  (make-point :name nil
+	      :coords (apply #'map 'list #'mean
+			     (mapcar #'point-coords points))))
 
 (defun cluster-distance (c1 c2)
   (distance (point-mean c1) (point-mean c2)))
