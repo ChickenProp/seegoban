@@ -63,6 +63,23 @@ from seq."
      (dotree* ,tree (lambda (,var) ,@body))
      ,ret))
 
+(defun arg-min (fn val &rest more-vals)
+  "Returns the value minimizing (fn val)"
+  (cond ((null more-vals)
+	 val)
+	((> (funcall fn val) (funcall fn (car more-vals)))
+	 (apply #'arg-min fn more-vals))
+	(t
+	 (apply #'arg-min fn (cons val (cdr more-vals))))))
+
+(defun apply-fn (fn)
+  (lambda (x) (apply fn x)))
+
+;; This is a fast algorithm that relies on cluster-distance being min distance
+;; between points in each cluster. Below is a slower one that can use an
+;; arbitrary cluster-distance.
+;; (Fast is O(n^2 log n), with the complexity bottleneck being the sort.)
+
 (defstruct c-point ; abbreviation for clustered-point
   point
   cluster)
@@ -110,6 +127,41 @@ from seq."
 	    (uniq (mapcar #'c-point-cluster c-points)))))
 
 
+;; This is the slow algorithm. I don't even want to imagine its complexity.
+
+(defun mean (&rest vals)
+  (/ (apply #'+ vals) (length vals)))
+
+(defun point-mean (points)
+  (cons 'a
+	(apply #'map
+	       'list
+	       #'mean
+	       (mapcar #'cdr points))))
+
+(defun cluster-distance (c1 c2)
+  (distance (point-mean c1) (point-mean c2)))
+
+(defun nearest-clusters (clusters)
+  (apply #'arg-min
+	 (apply-fn #'cluster-distance)
+	 (combinations clusters 2)))
+
+(defun reduce-clusters (clusters)
+  (let ((nearest (nearest-clusters clusters)))
+    (append (remove-if (lambda (cluster) (find cluster nearest :test #'equal))
+		       clusters)
+	    (list (apply #'union nearest)))))
+
+(defun reduce-to-n-clusters (n clusters)
+  (if (<= (length clusters) n)
+      clusters
+      (reduce-to-n-clusters n (reduce-clusters clusters))))
+
+(defun clusterize-slow (n points)
+  (reduce-to-n-clusters n (map 'list #'list points)))
+
+
 ;; If there's only one point in a set, xgraph doesn't draw it. So we place two
 ;; points in the same position instead, so they at least show up with -m,
 ;; -M, -p or -P.
@@ -140,7 +192,7 @@ from seq."
     (t (format t "Unknown output format '~S'.~%" output-type))))
 
 ;; Some points to try clustering, for testing purposes
-#+nil (defvar *points*
+(defvar *test-points*
   '((:1 45 11)
     (:2 44 16)
     (:3 40 17)
@@ -163,7 +215,21 @@ from seq."
     (:20 231 16)
     (:21 246 13)))
 
-(let ((points (read)))
-  (print-clusters (or (second *posix-argv*) "lisp")
-		  (clusterize 3 points)))
-(fresh-line)
+(let ((output-type :lisp)
+      (algorithm #'clusterize)
+      (points-type :real))
+  (dolist (key (mapcar (lambda (str)
+			 (intern (string-upcase str) 'keyword))
+		       *posix-argv*))
+    (case key
+      (:graph (setf output-type :graph))
+      (:slow (setf algorithm #'clusterize-slow))
+      (:test (setf points-type :test))))
+
+  (let ((points (if (eq points-type :real)
+		    (read)
+		    *test-points*)))
+    (print-clusters output-type
+		    (time (funcall algorithm 3 points))))
+  
+  (fresh-line))
