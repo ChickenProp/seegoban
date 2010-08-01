@@ -136,6 +136,11 @@ from seq."
 
 ;; This is the slow algorithm. I don't even want to imagine its complexity.
 
+(defstruct cluster
+  points
+  centre
+  obsolete)
+
 (defun mean (&rest vals)
   (/ (apply #'+ vals) (length vals)))
 
@@ -144,8 +149,13 @@ from seq."
 	      :coords (apply #'map 'list #'mean
 			     (mapcar #'point-coords points))))
 
+(defun cluster-union (&rest clusters)
+  (let ((points (apply #'union (map 'list #'cluster-points clusters))))
+    (make-cluster :points points
+		  :centre (point-mean points))))
+
 (defun cluster-distance (c1 c2)
-  (distance (point-mean c1) (point-mean c2)))
+  (distance (cluster-centre c1) (cluster-centre c2)))
 
 (defun nearest-clusters (clusters)
   (apply #'arg-min
@@ -156,7 +166,7 @@ from seq."
   (let ((nearest (nearest-clusters clusters)))
     (append (remove-if (lambda (cluster) (find cluster nearest :test #'equal))
 		       clusters)
-	    (list (apply #'union nearest)))))
+	    (list (apply #'cluster-union nearest)))))
 
 (defun reduce-to-n-clusters (n clusters)
   (if (<= (length clusters) n)
@@ -164,7 +174,11 @@ from seq."
       (reduce-to-n-clusters n (reduce-clusters clusters))))
 
 (defun clusterize-slow (n points)
-  (reduce-to-n-clusters n (map 'list #'list points)))
+  (reduce-to-n-clusters n (map 'list
+			       (lambda (pt)
+				 (make-cluster :points (list pt)
+					       :centre pt))
+			       points)))
 
 
 ;; If there's only one point in a set, xgraph doesn't draw it. So we place two
