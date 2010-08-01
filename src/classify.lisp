@@ -1,5 +1,12 @@
 #! /usr/bin/sbcl --script
 
+(defstruct point
+  name
+  coords)
+
+(defun list-to-point (lst)
+  (make-point :name (car lst) :coords (cdr lst)))
+
 ;; My intuition is that Manhattan distance will give better results than
 ;; Euclidean, because it increases faster when all the components change. But I
 ;; can test that later.
@@ -8,8 +15,8 @@
 (defun distance (p1 p2)
   (apply #'+ (map 'list
 		  (lambda (x y) (abs (- x y)))
-		  (cdr p1)
-		  (cdr p2))))
+		  (point-coords p1)
+		  (point-coords p2))))
 
 (defun combinations (seq n)
   "Returns the possible order-independent combinations of n distinct elements
@@ -172,17 +179,18 @@ from seq."
 				  "~F ~F~%~@*~F ~F~%"
 				  "~F ~F~%")))
 	  (loop for point in clust
-	     ;; If there are two coordinates (+ name), brightness and
-	     ;; saturation. Otherwise, rgb.
-	     do (if (= (list-length point) 3)
-		    (format t control-string
-			    (second point) (third point))
-		    (format t control-string
-			    (+ (* 0.30 (second point))
-			       (* 0.59 (third point))
-			       (* 0.11 (fourth point)))
-			    (- (apply #'max (cdr point))
-			       (apply #'min (cdr point))))))
+	     ;; If there are two coordinates, brightness and saturation.
+	     ;; Otherwise, rgb.
+	     do (let ((coords (point-coords point)))
+		  (if (= (list-length coords) 2)
+		      (format t control-string
+			      (first coords) (second coords))
+		      (format t control-string
+			      (+ (* 0.30 (first coords))
+				 (* 0.59 (second coords))
+				 (* 0.11 (third coords)))
+			      (- (apply #'max coords)
+				 (apply #'min coords))))))
 	  (format t "~%"))))
 
 (defun print-clusters (output-type clusters)
@@ -230,6 +238,7 @@ from seq."
 		    (read)
 		    *test-points*)))
     (print-clusters output-type
-		    (time (funcall algorithm 3 points))))
+		    (time (funcall algorithm 3
+				   (mapcar #'list-to-point points)))))
   
   (fresh-line))
