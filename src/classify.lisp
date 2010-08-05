@@ -56,6 +56,19 @@ from seq."
 	 (append (flatten (car lst))
 		 (flatten (cdr lst))))))
 
+(defun merge-sorted (lst1 lst2 test &key (key #'identity))
+  (let ((keep lst2))
+    (loop
+       until (or (null lst1) (null lst2))
+       do (if (funcall test (funcall key (car lst1)) (funcall key (car lst2)))
+	      (let ((oldcar (car lst2)))
+		(setf (car lst2) (car lst1))
+		(setf (cdr lst2) (cons oldcar (cdr lst2)))
+		(setf lst1 (cdr lst1)
+		      lst2 (cdr lst2)))
+	      (setf lst2 (cdr lst2))))
+    keep))
+
 (defun dotree* (tree fn)
   (cond ((null tree)
 	 nil)
@@ -141,6 +154,9 @@ from seq."
   centre
   obsolete)
 
+(defun cluster-wrap-point (pt)
+  (make-cluster :points (list pt) :centre pt))
+
 (defun mean (&rest vals)
   (/ (apply #'+ vals) (length vals)))
 
@@ -174,11 +190,48 @@ from seq."
       (reduce-to-n-clusters n (reduce-clusters clusters))))
 
 (defun clusterize-slow (n points)
-  (reduce-to-n-clusters n (map 'list
-			       (lambda (pt)
-				 (make-cluster :points (list pt)
-					       :centre pt))
+  (reduce-to-n-clusters n (map 'list #'cluster-wrap-point
 			       points)))
+
+(defun reduce-clusters-fast (arg)
+  (destructuring-bind (clusters pairs) arg
+    (let ((best-1 (cadar pairs))
+	  (best-2 (caddar pairs)))
+      (if (or (cluster-obsolete best-1) (cluster-obsolete best-2))
+	  (reduce-clusters-fast (list clusters (cdr pairs)))
+
+	  (let* ((best-union (cluster-union best-1 best-2))
+		 (pairs-with-best
+		  (sort (loop for clust in clusters
+			   nconcing (if (cluster-obsolete clust)
+					nil
+					(list (list (cluster-distance best-union
+								      clust)
+						    best-union
+						    clust))))
+			#'<
+			:key #'car)))
+
+	    (setf (cluster-obsolete best-1) t
+		  (cluster-obsolete best-2) t)
+	    (list (cons best-union clusters)
+		  (merge-sorted pairs-with-best pairs #'< :key #'car)))))))
+
+(defun clusterize-slow-fast (n points)
+  (let* ((clusters (map 'list #'cluster-wrap-point points))
+	 (pairs (sort (map 'list
+			   (lambda (pair)
+			     (cons (cluster-distance (car pair)
+						     (cadr pair))
+				   pair))
+			   (combinations clusters 2))
+		      #'<
+		      :key #'car)))
+    (mapcar #'cluster-points
+	    (remove-if #'cluster-obsolete
+		       (car (iterate (- (length points) n)
+				     #'reduce-clusters-fast
+				     (list clusters pairs)))))))
 
 
 ;; If there's only one point in a set, xgraph doesn't draw it. So we place two
@@ -243,14 +296,14 @@ from seq."
 		       *posix-argv*))
     (case key
       (:graph (setf output-type :graph))
-      (:slow (setf algorithm #'clusterize-slow))
+      (:slow (setf algorithm #'clusterize-slow-fast))
       (:test (setf points-type :test))))
 
   (let ((points (if (eq points-type :real)
 		    (read)
 		    *test-points*)))
     (print-clusters output-type
-		    (time (funcall algorithm 3
-				   (mapcar #'list-to-point points)))))
+		    (funcall algorithm 3
+			     (mapcar #'list-to-point points))))
   
   (fresh-line))
