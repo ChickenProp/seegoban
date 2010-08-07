@@ -173,32 +173,12 @@ from seq."
 (defun cluster-distance (c1 c2)
   (distance (cluster-centre c1) (cluster-centre c2)))
 
-(defun nearest-clusters (clusters)
-  (apply #'arg-min
-	 (apply-fn #'cluster-distance)
-	 (combinations clusters 2)))
-
-(defun reduce-clusters (clusters)
-  (let ((nearest (nearest-clusters clusters)))
-    (append (remove-if (lambda (cluster) (find cluster nearest :test #'equal))
-		       clusters)
-	    (list (apply #'cluster-union nearest)))))
-
-(defun reduce-to-n-clusters (n clusters)
-  (if (<= (length clusters) n)
-      clusters
-      (reduce-to-n-clusters n (reduce-clusters clusters))))
-
-(defun clusterize-slow (n points)
-  (reduce-to-n-clusters n (map 'list #'cluster-wrap-point
-			       points)))
-
-(defun reduce-clusters-fast (arg)
+(defun reduce-clusters (arg)
   (destructuring-bind (clusters pairs) arg
     (let ((best-1 (cadar pairs))
 	  (best-2 (caddar pairs)))
       (if (or (cluster-obsolete best-1) (cluster-obsolete best-2))
-	  (reduce-clusters-fast (list clusters (cdr pairs)))
+	  (reduce-clusters (list clusters (cdr pairs)))
 
 	  (let* ((best-union (cluster-union best-1 best-2))
 		 (pairs-with-best
@@ -217,7 +197,7 @@ from seq."
 	    (list (cons best-union clusters)
 		  (merge-sorted pairs-with-best pairs #'< :key #'car)))))))
 
-(defun clusterize-slow-fast (n points)
+(defun clusterize-slow (n points)
   (let* ((clusters (map 'list #'cluster-wrap-point points))
 	 (pairs (sort (map 'list
 			   (lambda (pair)
@@ -230,7 +210,7 @@ from seq."
     (mapcar #'cluster-points
 	    (remove-if #'cluster-obsolete
 		       (car (iterate (- (length points) n)
-				     #'reduce-clusters-fast
+				     #'reduce-clusters
 				     (list clusters pairs)))))))
 
 
@@ -296,7 +276,7 @@ from seq."
 		       *posix-argv*))
     (case key
       (:graph (setf output-type :graph))
-      (:slow (setf algorithm #'clusterize-slow-fast))
+      (:slow (setf algorithm #'clusterize-slow))
       (:test (setf points-type :test))))
 
   (let ((points (if (eq points-type :real)
