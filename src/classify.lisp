@@ -214,6 +214,29 @@ from seq."
 				     (list clusters pairs)))))))
 
 
+;; The k-means algorithm is fast, but depends on initial conditions.
+
+(defun closest-point (target points)
+  (apply #'arg-min (lambda (x) (distance target x)) points))
+
+(defun clusterize-points-by-means (points means
+				   &optional (acc (make-list (length means))))
+  (if (null points)
+      acc
+      (let ((index (position (closest-point (car points) means) means
+			     :test #'equal)))
+	(setf (nth index acc) (cons (car points)
+				    (nth index acc)))
+	(clusterize-points-by-means (cdr points) means acc))))
+
+;(kmeans-iterate-means (list (list-to-point '(:a 12 13))
+;			    (list-to-point '(:b 120 10))
+;			    (list-to-point '(:c 250 10)))
+;		      (mapcar #'list-to-point *test-points*))
+
+(defun kmeans-iterate-means (means points)
+  (mapcar #'point-mean (clusterize-points-by-means points means)))
+
 ;; If there's only one point in a set, xgraph doesn't draw it. So we place two
 ;; points in the same position instead, so they at least show up with -m,
 ;; -M, -p or -P.
