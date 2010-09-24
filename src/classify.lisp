@@ -229,13 +229,26 @@ from seq."
 				    (nth index acc)))
 	(clusterize-points-by-means (cdr points) means acc))))
 
-;(kmeans-iterate-means (list (list-to-point '(:a 12 13))
-;			    (list-to-point '(:b 120 10))
-;			    (list-to-point '(:c 250 10)))
-;		      (mapcar #'list-to-point *test-points*))
-
 (defun kmeans-iterate-means (means points)
   (mapcar #'point-mean (clusterize-points-by-means points means)))
+
+(defun clusterize-kmeans (points initial)
+  ; 10 is a fairly arbitrary number that deserves investigation.
+  (let ((means (iterate 10
+			(lambda (means)
+			  (kmeans-iterate-means means points))
+			initial)))
+    (append (clusterize-points-by-means points means)
+	    (mapcar #'list means))))
+
+;; k-means++ is a way of finding initial means for k-means.
+(defun clusterize-kmeans++ (n points)
+  n
+  (clusterize-kmeans points
+		     ; for now this is arbitrary
+		     (list (list-to-point '(:a 0 0))
+			   (list-to-point '(:b 255 0))
+			   (list-to-point '(:c 128 128)))))
 
 ;; If there's only one point in a set, xgraph doesn't draw it. So we place two
 ;; points in the same position instead, so they at least show up with -m,
@@ -300,6 +313,7 @@ from seq."
     (case key
       (:graph (setf output-type :graph))
       (:slow (setf algorithm #'clusterize-slow))
+      (:kmeans (setf algorithm #'clusterize-kmeans++))
       (:test (setf points-type :test))))
 
   (let ((points (if (eq points-type :real)
