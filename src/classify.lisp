@@ -7,9 +7,9 @@
 
 (defun list-to-point (lst)
   (make-point :name (car lst) :coords (cdr lst)
-	      :format (cond ((= (list-length lst) 2)
+	      :format (cond ((= (list-length lst) 3)
 			     :bs)
-			    ((= (list-length lst) 3)
+			    ((= (list-length lst) 4)
 			     :rgb)
 			    (t nil))))
 
@@ -21,20 +21,27 @@
 	(- (apply #'max rgb)
 	   (apply #'min rgb))))
 
+(defun point-to-bs (p)
+  (make-point :name (point-name p) :format :bs
+	      :coords (case (point-format p)
+			(:rgb (rgb-to-bs (point-coords p)))
+			(:bs (point-coords p)))))
+
 (defun l1-distance (lst1 lst2)
   (assert (= (length lst1) (length lst2)))
   (apply #'+ (map 'list
 		  (lambda (x y) (abs (- x y)))
-		  (point-coords p1)
-		  (point-coords p2))))
+		  lst1 lst2)))
+
+(defun distance-rgb (p1 p2)
+  (l1-distance (point-coords p1) (point-coords p2)))
+
+(defun distance-bs (p1 p2)
+  (l1-distance (point-coords (point-to-bs p1))
+	       (point-coords (point-to-bs p2))))
 
 (defvar *distance-function*
-  ; Manhattan distance is a reasonable default.
-  (lambda (p1 p2)
-        (apply #'+ (map 'list
-		    (lambda (x y) (abs (- x y)))
-		    (point-coords p1)
-		    (point-coords p2))))
+  #'distance-bs
   "The function used to calculate the distance between two points.")
 
 (defun distance (p1 p2)
@@ -184,9 +191,9 @@ from seq."
   (/ (apply #'+ vals) (length vals)))
 
 (defun point-mean (points)
-  (make-point :name nil
-	      :coords (apply #'map 'list #'mean
-			     (mapcar #'point-coords points))))
+  (list-to-point (cons :mean
+		       (apply #'map 'list #'mean
+			      (mapcar #'point-coords points)))))
 
 (defun cluster-union (&rest clusters)
   (let ((points (apply #'union (map 'list #'cluster-points clusters))))
@@ -283,18 +290,8 @@ from seq."
 				  "~F ~F~%~@*~F ~F~%"
 				  "~F ~F~%")))
 	  (loop for point in clust
-	     ;; If there are two coordinates, brightness and saturation.
-	     ;; Otherwise, rgb.
-	     do (let ((coords (point-coords point)))
-		  (if (= (list-length coords) 2)
-		      (format t control-string
-			      (first coords) (second coords))
-		      (format t control-string
-			      (+ (* 0.30 (first coords))
-				 (* 0.59 (second coords))
-				 (* 0.11 (third coords)))
-			      (- (apply #'max coords)
-				 (apply #'min coords))))))
+	     do (destructuring-bind (brt sat) (point-coords (point-to-bs point))
+		  (format t control-string brt sat)))
 	  (format t "~%"))))
 
 (defun print-clusters (output-type clusters)
@@ -337,7 +334,8 @@ from seq."
       (:graph (setf output-type :graph))
       (:slow (setf algorithm #'clusterize-slow))
       (:kmeans (setf algorithm #'clusterize-kmeans++))
-      (:test (setf points-type :test))))
+      (:test (setf points-type :test))
+      (:rgb (setf *distance-function* #'distance-rgb))))
 
   (let ((points (if (eq points-type :real)
 		    (read)
