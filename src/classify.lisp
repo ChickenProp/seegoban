@@ -7,16 +7,18 @@
 (defun list-to-point (lst)
   (make-point :name (car lst) :coords (cdr lst)))
 
-;; My intuition is that Manhattan distance will give better results than
-;; Euclidean, because it increases faster when all the components change. But I
-;; can test that later.
+(defvar *distance-function*
+  ; Manhattan distance is a reasonable default.
+  (lambda (p1 p2)
+    (apply #'+ (map 'list
+		    (lambda (x y) (abs (- x y)))
+		    (point-coords p1)
+		    (point-coords p2))))
+  "The function used to calculate the distance between two points.")
 
-;; p1 and p2 are taken to be lists: (name coords...).
 (defun distance (p1 p2)
-  (apply #'+ (map 'list
-		  (lambda (x y) (abs (- x y)))
-		  (point-coords p1)
-		  (point-coords p2))))
+  "Calls *distance-function* on p1 and p2."
+  (funcall *distance-function* p1 p2))
 
 (defun combinations (seq n)
   "Returns the possible order-independent combinations of n distinct elements
