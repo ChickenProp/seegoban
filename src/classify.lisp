@@ -264,7 +264,7 @@ from seq."
 
 (defun clusterize-kmeans (points initial)
   ; 10 is a fairly arbitrary number that deserves investigation.
-  (let ((means (iterate 10
+  (let ((means (iterate 100
 			(lambda (means)
 			  (kmeans-iterate-means means points))
 			initial)))
@@ -276,9 +276,9 @@ from seq."
   n
   (clusterize-kmeans points
 		     ; for now this is arbitrary
-		     (list (list-to-point '(:a 0 0))
-			   (list-to-point '(:b 255 0))
-			   (list-to-point '(:c 128 128)))))
+		     (list (list-to-point '(:a 0 0 0))
+			   (list-to-point '(:b 255 255 255))
+			   (list-to-point '(:c 220 200 140)))))
 
 ;; If there's only one point in a set, xgraph doesn't draw it. So we place two
 ;; points in the same position instead, so they at least show up with -m,
