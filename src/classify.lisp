@@ -2,15 +2,36 @@
 
 (defstruct point
   name
-  coords)
+  coords
+  format)
 
 (defun list-to-point (lst)
-  (make-point :name (car lst) :coords (cdr lst)))
+  (make-point :name (car lst) :coords (cdr lst)
+	      :format (cond ((= (list-length lst) 2)
+			     :bs)
+			    ((= (list-length lst) 3)
+			     :rgb)
+			    (t nil))))
+
+(defun rgb-to-bs (rgb)
+  "Converts (r g b) to (brightness saturation)."
+  (list (+ (* 0.30 (first rgb))
+	   (* 0.59 (second rgb))
+	   (* 0.11 (third rgb)))
+	(- (apply #'max rgb)
+	   (apply #'min rgb))))
+
+(defun l1-distance (lst1 lst2)
+  (assert (= (length lst1) (length lst2)))
+  (apply #'+ (map 'list
+		  (lambda (x y) (abs (- x y)))
+		  (point-coords p1)
+		  (point-coords p2))))
 
 (defvar *distance-function*
   ; Manhattan distance is a reasonable default.
   (lambda (p1 p2)
-    (apply #'+ (map 'list
+        (apply #'+ (map 'list
 		    (lambda (x y) (abs (- x y)))
 		    (point-coords p1)
 		    (point-coords p2))))
