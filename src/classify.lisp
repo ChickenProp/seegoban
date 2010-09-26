@@ -294,6 +294,7 @@ from seq."
 	    (mapcar #'list means))))
 
 ;; k-means++ is a way of finding initial means for k-means.
+;; Note: this is not it. This is a placeholder.
 (defun clusterize-kmeans++ (n points)
   n
   (clusterize-kmeans points
