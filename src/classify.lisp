@@ -33,12 +33,34 @@
 		  (lambda (x y) (abs (- x y)))
 		  lst1 lst2)))
 
+(defun l1-distance-weighted (lst1 lst2 weights)
+  (assert (= (length lst1) (length lst2) (length weights)))
+  (apply #'+ (map 'list
+		  (lambda (x y w) (* w (abs (- x y))))
+		  lst1 lst2 weights)))
+
 (defun distance-rgb (p1 p2)
   (l1-distance (point-coords p1) (point-coords p2)))
 
+(defvar *bs-weights* '(1 1)
+  "Weights for brightness-saturation distance.")
+
 (defun distance-bs (p1 p2)
-  (l1-distance (point-coords (point-to-bs p1))
-	       (point-coords (point-to-bs p2))))
+  (l1-distance-weighted (point-coords (point-to-bs p1))
+			(point-coords (point-to-bs p2))
+			*bs-weights*))
+
+(defun find-bs-weights (points)
+  (mapcar (lambda (lst)
+	    (/ (- (apply #'max lst) (apply #'min lst))))
+	  (apply #'mapcar #'list
+		 (map 'list
+		      (lambda (pt)
+			(point-coords (point-to-bs pt)))
+		      points))))
+
+(defun set-bs-weights (points)
+  (setf *bs-weights* (find-bs-weights points)))
 
 (defvar *distance-function*
   #'distance-bs
@@ -337,7 +359,8 @@ from seq."
 
 (let ((output-type :lisp)
       (algorithm #'clusterize)
-      (points-type :real))
+      (points-type :real)
+      (distance-function :bs))
   (dolist (key (mapcar (lambda (str)
 			 (intern (string-upcase str) 'keyword))
 		       *posix-argv*))
@@ -346,13 +369,18 @@ from seq."
       (:slow (setf algorithm #'clusterize-slow))
       (:kmeans (setf algorithm #'clusterize-kmeans++))
       (:test (setf points-type :test))
-      (:rgb (setf *distance-function* #'distance-rgb))))
+      (:rgb (setf distance-function :rgb))))
 
-  (let ((points (if (eq points-type :real)
-		    (read)
-		    *test-points*)))
+  (let ((points (mapcar #'list-to-point
+			(if (eq points-type :real)
+			    (read)
+			    *test-points*))))
+
+    (case distance-function
+      (:rgb (setf *distance-function* #'distance-rgb))
+      (:bs (set-bs-weights points)))
+  
     (print-clusters output-type
-		    (funcall algorithm 3
-			     (mapcar #'list-to-point points))))
+		    (funcall algorithm 3 points)))
   
   (fresh-line))
